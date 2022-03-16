@@ -24,7 +24,6 @@ public class CreateAccountAdminForm {
     @NotEmpty(message = "fullName cant not be null")
     @ApiModelProperty(name = "fullName",required = true)
     private String fullName;
-    private String avatarPath;
 
     @Status
     private Integer status = 1;

@@ -25,10 +25,6 @@ public class Account extends  Auditable<String>{
     @Column(name = "full_name")
     private String fullName;
     private String phone;
-    @Column(name = "avatar_path")
-    private String avatarPath;
-    @Column(name = "is_super_admin")
-    private Boolean isSuperAdmin = false;
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -37,16 +33,6 @@ public class Account extends  Auditable<String>{
     @Column(name = "last_login")
     private Date lastLogin;
 
-    @Column(name="reset_pwd_code")
-    private String resetPwdCode;
-    @Column(name = "reset_pwd_time")
-    private Date resetPwdTime;
-    @Column(name = "attempt_forget_pwd")
-    private Integer attemptCode;
-    @Column(name = "attempt_login")
-    private Integer attemptLogin;
     @Column(name="verify_code")
     private String verifyCode;
-    @Column(name = "verify_time")
-    private Date verifyTime;
 }

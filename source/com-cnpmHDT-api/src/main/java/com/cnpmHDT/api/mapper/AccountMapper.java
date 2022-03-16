@@ -16,7 +16,6 @@ public interface AccountMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
-    @Mapping(source = "avatarPath", target = "avatarPath")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "phone", target = "phone")
     Account fromCreateAccountAdminFormToAdmin(CreateAccountAdminForm createAccountAdminForm);
@@ -37,10 +36,7 @@ public interface AccountMapper {
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
     @Mapping(source = "group", target = "group")
-    @Mapping(source = "lastLogin", target = "lastLogin")
-    @Mapping(source = "avatarPath", target = "avatar")
     @Mapping(source = "phone", target = "phone")
-    @Mapping(source = "isSuperAdmin", target = "isSuperAdmin")
     AccountDto fromEntityToAccountDto(Account account);
 
 
@@ -50,8 +46,6 @@ public interface AccountMapper {
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fullName", target = "fullName")
     @Mapping(source = "group", target = "group")
-    @Mapping(source = "lastLogin", target = "lastLogin")
-    @Mapping(source = "avatarPath", target = "avatar")
     @Mapping(source = "createdBy", target = "createdBy")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "modifiedBy", target = "modifiedBy")

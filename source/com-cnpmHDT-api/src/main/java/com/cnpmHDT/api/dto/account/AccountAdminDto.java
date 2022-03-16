@@ -19,14 +19,8 @@ public class AccountAdminDto extends ABasicAdminDto {
     private String fullName;
     @ApiModelProperty(name = "group")
     private GroupDto group;
-    @ApiModelProperty(name = "lastLogin")
-    private Date lastLogin;
-    @ApiModelProperty(name = "avatar")
-    private String avatar;
     @ApiModelProperty(name = "phone")
     private String phone;
-    @ApiModelProperty(name = "labelColor")
-    private String labelColor;
     @ApiModelProperty(name = "salary")
     private Double salary;
 }

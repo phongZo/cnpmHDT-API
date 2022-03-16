@@ -22,8 +22,6 @@ public class UpdateAccountAdminForm {
     @NotEmpty(message = "fullName cant not be null")
     @ApiModelProperty(name = "fullName", required = true)
     private String fullName;
-    @ApiModelProperty(name = "avatarPath")
-    private String avatarPath;
     @Status
     private Integer status;
     @NotEmpty(message = "phone can not be empty")

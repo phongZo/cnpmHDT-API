@@ -57,7 +57,6 @@ public class Application {
             account.setKind(1);
             account.setFullName("Root account");
             account.setGroup(group);
-            account.setIsSuperAdmin(true);
             qrCodeStorageService.save(account);
         }
 
