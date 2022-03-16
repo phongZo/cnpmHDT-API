@@ -101,7 +101,6 @@ public class AccountController extends ABasicController{
         qrJwt.setUsername(account.getUsername());
         qrJwt.setPemission(cnpmHDTApiService.convertGroupToUri(account.getGroup().getPermissions())+appendStringRole);
         qrJwt.setUserKind(account.getKind());
-        qrJwt.setIsSuperAdmin(account.getIsSuperAdmin());
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(new MyAuthentication(qrJwt));
@@ -184,13 +183,6 @@ public class AccountController extends ABasicController{
             account.setPassword(passwordEncoder.encode(updateAccountAdminForm.getPassword()));
         }
         account.setFullName(updateAccountAdminForm.getFullName());
-        if (StringUtils.isNoneBlank(updateAccountAdminForm.getAvatarPath())) {
-            if(!updateAccountAdminForm.getAvatarPath().equals(account.getAvatarPath())){
-                //delete old image
-                cnpmHDTApiService.deleteFile(account.getAvatarPath());
-            }
-            account.setAvatarPath(updateAccountAdminForm.getAvatarPath());
-        }
 
         accountRepository.save(account);
 
@@ -228,13 +220,6 @@ public class AccountController extends ABasicController{
 
         if (StringUtils.isNoneBlank(updateProfileAdminForm.getPassword())) {
             account.setPassword(passwordEncoder.encode(updateProfileAdminForm.getPassword()));
-        }
-        if (StringUtils.isNoneBlank(updateProfileAdminForm.getAvatar())) {
-            if(!updateProfileAdminForm.getAvatar().equals(account.getAvatarPath())){
-                //delete old image
-                cnpmHDTApiService.deleteFile(account.getAvatarPath());
-            }
-            account.setAvatarPath(updateProfileAdminForm.getAvatar());
         }
         accountMapper.mappingFormUpdateProfileToEntity(updateProfileAdminForm, account);
         accountRepository.save(account);
@@ -279,77 +264,11 @@ public class AccountController extends ABasicController{
         if (account == null) {
             throw new RequestException(ErrorCode.GENERAL_ERROR_NOT_FOUND, "Account not found");
         }
-        cnpmHDTApiService.deleteFile(account.getAvatarPath());
         accountRepository.deleteById(id);
         apiMessageDto.setMessage("Delete Account success");
         return apiMessageDto;
     }
 
-    @PostMapping(value = "/request_forget_password", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<ForgetPasswordDto> requestForgetPassword(@Valid @RequestBody RequestForgetPasswordForm forgetForm, BindingResult bindingResult){
-        ApiMessageDto<ForgetPasswordDto> apiMessageDto = new ApiMessageDto<>();
-        Account account = accountRepository.findAccountByEmail(forgetForm.getEmail());
-        if (account == null) {
-            throw new RequestException(ErrorCode.GENERAL_ERROR_NOT_FOUND, "Account not found.");
-        }
-
-        String otp = cnpmHDTApiService.getOTPForgetPassword();
-        account.setAttemptCode(0);
-        account.setResetPwdCode(otp);
-        account.setResetPwdTime(new Date());
-        accountRepository.save(account);
-
-        //send email
-        cnpmHDTApiService.sendEmail(account.getEmail(),"OTP: "+otp, "Reset password",false);
-
-        ForgetPasswordDto forgetPasswordDto = new ForgetPasswordDto();
-        String hash = AESUtils.encrypt (account.getId()+";"+otp, true);
-        forgetPasswordDto.setIdHash(hash);
-
-        apiMessageDto.setResult(true);
-        apiMessageDto.setData(forgetPasswordDto);
-        apiMessageDto.setMessage("Request forget password success, please check email.");
-        return  apiMessageDto;
-    }
-
-    @PostMapping(value = "/forget_password", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<Long> forgetPassword(@Valid @RequestBody ForgetPasswordForm forgetForm, BindingResult bindingResult){
-        ApiMessageDto<Long> apiMessageDto = new ApiMessageDto<>();
-
-        String[] hash = AESUtils.decrypt(forgetForm.getIdHash(),true).split(";",2);
-        Long id = ConvertUtils.convertStringToLong(hash[0]);
-        if(Objects.equals(id,0)){
-            throw new RequestException(ErrorCode.GENERAL_ERROR_WRONG_HASH, "Wrong hash");
-        }
-
-        Account account = accountRepository.findById(id).orElse(null);
-        if (account == null ) {
-            throw new RequestException(ErrorCode.GENERAL_ERROR_NOT_FOUND, "account not found.");
-        }
-
-        if(account.getAttemptCode() >= cnpmHDTConstant.MAX_ATTEMPT_FORGET_PWD){
-            throw new RequestException(ErrorCode.GENERAL_ERROR_LOCKED, "Account locked");
-        }
-
-        if(!account.getResetPwdCode().equals(forgetForm.getOtp()) ||
-                (new Date().getTime() - account.getResetPwdTime().getTime() >= cnpmHDTConstant.MAX_TIME_FORGET_PWD)){
-            //tang so lan
-            account.setAttemptCode(account.getAttemptCode()+1);
-            accountRepository.save(account);
-
-            throw new RequestException(ErrorCode.GENERAL_ERROR_INVALID, "Code invalid");
-        }
-
-        account.setResetPwdTime(null);
-        account.setResetPwdCode(null);
-        account.setAttemptCode(null);
-        account.setPassword(passwordEncoder.encode(forgetForm.getNewPassword()));
-        accountRepository.save(account);
-
-        apiMessageDto.setResult(true);
-        apiMessageDto.setMessage("Change password success.");
-        return  apiMessageDto;
-    }
 
     @PostMapping(value = "/verify_account", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> verify(@RequestBody @Valid VerifyForm verifyForm, BindingResult bindingResult){
@@ -360,13 +279,11 @@ public class AccountController extends ABasicController{
             throw new RequestException(ErrorCode.GENERAL_ERROR_NOT_FOUND, "Account is not found");
         }
 
-        if(!account.getVerifyCode().equals(verifyForm.getOtp()) ||
-           (new Date().getTime() - account.getVerifyTime().getTime() >= cnpmHDTConstant.MAX_TIME_VERIFY_ACCOUNT)){
-
+        if(!account.getVerifyCode().equals(verifyForm.getOtp()))
+        {
             throw new RequestException(ErrorCode.GENERAL_ERROR_NOT_MATCH, "Otp not match");
         }
 
-        account.setVerifyTime(null);
         account.setVerifyCode(null);
         account.setStatus(cnpmHDTConstant.STATUS_ACTIVE);
         accountRepository.save(account);

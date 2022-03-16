@@ -17,7 +17,5 @@ public class UpdateProfileAdminForm {
     @NotEmpty(message = "fullName is required")
     @ApiModelProperty(name = "fullName", required = true)
     private String fullName;
-    @ApiModelProperty(name = "avatar")
-    private String avatar;
 
 }
