@@ -21,6 +21,11 @@ public class ErrorCode {
     public static final String CATEGORY_ERROR_NOT_FOUND = "ERROR-CATEGORY-001";
 
     /**
+     * Account error code
+     */
+    public static final String ACCOUNT_ERROR_EXIST = "ERROR-ACCOUNT-000";
+
+    /**
      * Group error code
      */
     public static final String GROUP_ERROR_UNAUTHORIZED = "ERROR-GROUP-000";
@@ -39,7 +44,15 @@ public class ErrorCode {
      */
     public static final String NEWS_ERROR_UNAUTHORIZED = "ERROR-NEWS-000";
     public static final String NEWS_ERROR_NOT_FOUND = "ERROR-NEWS-001";
-    
+
+    /**
+     * Category error code
+     */
+    public static final String CUSTOMER_ERROR_UNAUTHORIZED = "ERROR-CUSTOMER-000";
+    public static final String CUSTOMER_ERROR_NOT_FOUND = "ERROR-CUSTOMER-001";
+    public static final String CUSTOMER_ERROR_BAD_REQUEST = "ERROR-CUSTOMER-002";
+
+
 
     private ErrorCode() { throw new IllegalStateException("Utility class"); }
 }

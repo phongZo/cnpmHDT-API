@@ -13,6 +13,7 @@ public class Customer extends Auditable<String>{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) // This property is auto increased
     private Long id;
+
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "account_id") // name of this property in database
     @MapsId
