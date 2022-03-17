@@ -33,7 +33,7 @@ public class PermissionController extends ABasicController{
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListObj<PermissionAdminDto>> getList(PermissionCriteria permissionCriteria, Pageable pageable){
-        if(!isSuperAdmin()){
+        if(!isAdmin()){
             throw new RequestException(ErrorCode.PERMISSION_ERROR_UNAUTHORIZED);
         }
         ApiMessageDto<ResponseListObj<PermissionAdminDto>> apiMessageDto = new ApiMessageDto<>();
@@ -52,7 +52,7 @@ public class PermissionController extends ABasicController{
 
     @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> create(@Valid @RequestBody CreatePermissionForm createPermissionForm, BindingResult bindingResult) {
-        if(!isSuperAdmin()){
+        if(!isAdmin()){
             throw new RequestException(ErrorCode.PERMISSION_ERROR_UNAUTHORIZED);
         }
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
