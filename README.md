@@ -1,5 +1,5 @@
 # cnpmHDT-API
-This is the API built for Project cnpmHDT
+This is the API built for Project cnpmHDT use Spring Boot Data JPA
 
 In this project we use SDK Java 11. So, first you should download Java 11 at https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html (recommand choose Windows x64 Installer) Note: Click choose button set Java 11 to environment variable when setting before finish install OR follow this turtorial https://mkyong.com/java/how-to-set-java_home-on-windows-10/
 After then, you have to download and setting maven . You can follow this link tutorial https://mkyong.com/maven/how-to-install-maven-in-windows/
