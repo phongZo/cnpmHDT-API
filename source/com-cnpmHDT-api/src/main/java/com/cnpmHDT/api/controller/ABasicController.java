@@ -35,28 +35,10 @@ public class ABasicController {
         return Objects.equals(authentication.getJwtUser().getUserKind(), cnpmHDTConstant.USER_KIND_ADMIN);
     }
 
-    public boolean isEmployee(){
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        MyAuthentication authentication = (MyAuthentication)securityContext.getAuthentication();
-        return Objects.equals(authentication.getJwtUser().getUserKind(), cnpmHDTConstant.USER_KIND_EMPLOYEE);
-    }
-
-    public boolean isCollaborator(){
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        MyAuthentication authentication = (MyAuthentication)securityContext.getAuthentication();
-        return Objects.equals(authentication.getJwtUser().getUserKind(), cnpmHDTConstant.USER_KIND_COLLABORATOR);
-    }
-
     public boolean isCustomer(){
         SecurityContext securityContext = SecurityContextHolder.getContext();
         MyAuthentication authentication = (MyAuthentication)securityContext.getAuthentication();
         return Objects.equals(authentication.getJwtUser().getUserKind(), cnpmHDTConstant.USER_KIND_CUSTOMER);
-    }
-
-    public boolean isSuperAdmin(){
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        MyAuthentication authentication = (MyAuthentication)securityContext.getAuthentication();
-        return Objects.equals(authentication.getJwtUser().getUserKind(), cnpmHDTConstant.USER_KIND_ADMIN) && authentication.getJwtUser().getIsSuperAdmin();
     }
 }
 

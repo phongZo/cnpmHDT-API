@@ -18,11 +18,4 @@ public class News extends Auditable<String>{
     private String avatar;
     private String banner;
     private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "category_id")
-    private Category category;
-    private Integer pinTop = 0; // 0 unpin, 1 pin
-
-    private Integer kind; // 0 internal, ctv
 }
