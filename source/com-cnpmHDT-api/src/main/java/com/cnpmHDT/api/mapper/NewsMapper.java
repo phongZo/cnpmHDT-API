@@ -13,13 +13,10 @@ import java.util.List;
 public interface NewsMapper {
 
 
-    @Mapping(source = "categoryId", target = "category.id")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "avatar", target = "avatar")
     @Mapping(source = "banner", target = "banner")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "pinTop", target = "pinTop")
-    @Mapping(source = "kind", target = "kind")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
@@ -32,20 +29,16 @@ public interface NewsMapper {
     @Mapping(source = "avatar", target = "avatar")
     @Mapping(source = "banner", target = "banner")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "pinTop", target = "pinTop")
     @Mapping(source = "status", target = "status")
     @BeanMapping(ignoreByDefault = true)
     @Named("adminUpdateMapping")
     void fromUpdateNewsFormToEntity(UpdateNewsForm updateNewsForm, @MappingTarget News news);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "avatar", target = "avatar")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "banner", target = "banner")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "pinTop", target = "pinTop")
-    @Mapping(source = "kind", target = "kind")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
@@ -59,14 +52,11 @@ public interface NewsMapper {
     List<NewsDto> fromEntityListToNewsDtoListNoNewsContent(List<News> news);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "content", target = "content")
     @Mapping(source = "avatar", target = "avatar")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "banner", target = "banner")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "pinTop", target = "pinTop")
-    @Mapping(source = "kind", target = "kind")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "modifiedDate", target = "modifiedDate")
     @Mapping(source = "createdDate", target = "createdDate")
