@@ -74,7 +74,7 @@ public class GroupController extends ABasicController{
 
     @PostMapping(value = "/create", produces= MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> create(@Valid @RequestBody CreateGroupForm createGroupForm, BindingResult bindingResult) {
-        if(!isSuperAdmin()){
+        if(!isAdmin()){
             throw new RequestException(ErrorCode.GROUP_ERROR_UNAUTHORIZED);
         }
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
@@ -102,7 +102,7 @@ public class GroupController extends ABasicController{
 
     @PutMapping(value = "/update", produces= MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateGroupForm updateGroupForm, BindingResult bindingResult) {
-        if(!isSuperAdmin()){
+        if(!isAdmin()){
             throw new RequestException(ErrorCode.GROUP_ERROR_UNAUTHORIZED);
         }
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
@@ -146,7 +146,7 @@ public class GroupController extends ABasicController{
     @Transactional
     @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> delete(@PathVariable Long id){
-        if(!isSuperAdmin()){
+        if(!isAdmin()){
             throw new RequestException(ErrorCode.GROUP_ERROR_UNAUTHORIZED);
         }
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
