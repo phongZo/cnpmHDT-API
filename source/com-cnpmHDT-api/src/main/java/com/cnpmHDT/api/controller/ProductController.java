@@ -86,7 +86,7 @@ public class ProductController extends ABasicController {
 
         Product product = productRepository.findById(id).orElse(null);
         if(product == null) {
-            throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "Not found category.");
+            throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "Not found product.");
         }
         result.setData(productMapper.fromEntityToAdminDto(product));
         result.setMessage("Get product success");
@@ -102,7 +102,7 @@ public class ProductController extends ABasicController {
         Category category=categoryRepository.findById(createProductForm.getProductCategoryId()).orElse(null);
         if(category==null || !category.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE) )
         {
-            throw new RequestException(ErrorCode.PRODUCT_ERROR_BAD_REQUEST, "Not found category.");
+            throw new RequestException(ErrorCode.PRODUCT_ERROR_BAD_REQUEST, "Not found product.");
         }
         Product product = productMapper.fromCreateProductFormToEntity(createProductForm);
         productRepository.save(product);
@@ -140,7 +140,7 @@ public class ProductController extends ABasicController {
 
         Product product = productRepository.findById(id).orElse(null);
         if(product == null) {
-            throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "Not found category");
+            throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "Not found product");
         }
         cnpmHDTApiService.deleteFile(product.getImage());
         productRepository.delete(product);
