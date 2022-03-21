@@ -52,6 +52,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 "/v1/group/**",
                 "/v1/permission/**",
                 "/v1/category/**",
+                "/v1/product/**",
                 "/v1/news/**",
                 "/v1/customer/**",
         };

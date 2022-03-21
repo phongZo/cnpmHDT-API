@@ -1,5 +1,7 @@
 package com.cnpmHDT.api.dto;
 
+import com.cnpmHDT.api.storage.model.Product;
+
 public class ErrorCode {
 
     /**
@@ -52,6 +54,12 @@ public class ErrorCode {
     public static final String CUSTOMER_ERROR_NOT_FOUND = "ERROR-CUSTOMER-001";
     public static final String CUSTOMER_ERROR_BAD_REQUEST = "ERROR-CUSTOMER-002";
 
+
+/** Product error code
+     */
+    public static final String PRODUCT_ERROR_UNAUTHORIZED = "ERROR-CUSTOMER-000";
+    public static final String PRODUCT_ERROR_NOT_FOUND = "ERROR-CUSTOMER-001";
+    public static final String PRODUCT_ERROR_BAD_REQUEST = "ERROR-CUSTOMER-002";
 
 
     private ErrorCode() { throw new IllegalStateException("Utility class"); }
