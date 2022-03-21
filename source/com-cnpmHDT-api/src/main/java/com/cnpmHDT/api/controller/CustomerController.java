@@ -78,7 +78,7 @@ public class CustomerController extends ABasicController{
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<CustomerDto> get(@PathVariable("id") Long id) {
         if(!isAdmin()){
-            throw new RequestException(ErrorCode.CATEGORY_ERROR_UNAUTHORIZED, "Not allowed get.");
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_UNAUTHORIZED, "Not allowed get.");
         }
         ApiMessageDto<CustomerDto> result = new ApiMessageDto<>();
 
@@ -159,15 +159,15 @@ public class CustomerController extends ABasicController{
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ApiMessageDto<CategoryDto> delete(@PathVariable("id") Long id) {
+    public ApiMessageDto<CustomerDto> delete(@PathVariable("id") Long id) {
         if(!isAdmin()){
             throw new RequestException(ErrorCode.CUSTOMER_ERROR_UNAUTHORIZED, "Not allowed to delete.");
         }
-        ApiMessageDto<CategoryDto> result = new ApiMessageDto<>();
+        ApiMessageDto<CustomerDto> result = new ApiMessageDto<>();
 
         Customer customer = customerRepository.findById(id).orElse(null);
         if(customer == null) {
-            throw new RequestException(ErrorCode.CATEGORY_ERROR_NOT_FOUND, "Not found customer");
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_NOT_FOUND, "Not found customer");
         }
 
         customerRepository.delete(customer);
