@@ -46,7 +46,7 @@ public class ErrorCode {
     public static final String NEWS_ERROR_NOT_FOUND = "ERROR-NEWS-001";
 
     /**
-     * Category error code
+     * Customer error code
      */
     public static final String CUSTOMER_ERROR_UNAUTHORIZED = "ERROR-CUSTOMER-000";
     public static final String CUSTOMER_ERROR_NOT_FOUND = "ERROR-CUSTOMER-001";
