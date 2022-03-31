@@ -32,8 +32,6 @@ public class UpdateNewsForm {
     @ApiModelProperty(required = true)
     private String description;
 
-    private Integer pinTop;
-
     @NotNull(message = "status cannot be null")
     @ApiModelProperty(required = true)
     @Status

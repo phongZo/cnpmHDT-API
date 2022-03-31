@@ -7,8 +7,6 @@ import lombok.Data;
 public class CategoryDto extends ABasicAdminDto {
     private String categoryName;
     private String categoryDescription;
-    private String categoryImage;
     private Integer categoryOrdering;
-    private Integer categoryKind;
     private Integer parentId;
 }
