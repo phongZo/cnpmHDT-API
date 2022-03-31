@@ -91,32 +91,6 @@ public class ProvinceController extends ABasicController{
         return result;
     }
 
-
-
-    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<String> update(@Valid @RequestBody UpdateProvinceForm updateProvinceForm, BindingResult bindingResult) {
-        if(!isAdmin()){
-            throw new RequestException(ErrorCode.PROVINCE_ERROR_UNAUTHORIZED, "Not allowed to update.");
-        }
-        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-        Province province = provinceRepository.findById(updateProvinceForm.getId()).orElse(null);
-        if(province == null || !province.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
-            throw new RequestException(ErrorCode.PROVINCE_ERROR_UNAUTHORIZED, "Not found province.");
-        }
-
-//        if(province.getStatus().equals(updateProvinceForm.getStatus()) && province.getParentProvince() == null) {
-//            province.getProvinceList().forEach(child -> child.setStatus(updateProvinceForm.getStatus()));
-//            provinceRepository.saveAll(province.getProvinceList());
-//        }
-        // Map data from UpdateProvince AdminForm to province entity
-        provinceMapper.fromUpdateProvinceFormToEntity (updateProvinceForm, province);
-
-        //save province
-        provinceRepository.save(province);
-        apiMessageDto.setMessage("Update province success");
-        return apiMessageDto;
-    }
-
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> create(@Valid @RequestBody CreateProvinceForm createProvinceForm, BindingResult bindingResult) {
         if(!isAdmin()){
@@ -147,6 +121,26 @@ public class ProvinceController extends ABasicController{
         // repository provide save function to save the data into database /*|| parentProvinceKind.getKind()-province.getKind().longValue()>1/*
         provinceRepository.save(province);
         apiMessageDto.setMessage("Create province success");
+        return apiMessageDto;
+    }
+
+    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<String> update(@Valid @RequestBody UpdateProvinceForm updateProvinceForm, BindingResult bindingResult) {
+        if(!isAdmin()){
+            throw new RequestException(ErrorCode.PROVINCE_ERROR_UNAUTHORIZED, "Not allowed to update.");
+        }
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        Province province = provinceRepository.findById(updateProvinceForm.getId()).orElse(null);
+        if(province == null || !province.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
+            throw new RequestException(ErrorCode.PROVINCE_ERROR_NOT_FOUND, "Not found province.");
+        }
+        
+        // Map data from UpdateProvince AdminForm to province entity
+        provinceMapper.fromUpdateProvinceFormToEntity (updateProvinceForm, province);
+
+        //save province
+        provinceRepository.save(province);
+        apiMessageDto.setMessage("Update province success");
         return apiMessageDto;
     }
 
