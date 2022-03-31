@@ -35,11 +35,6 @@ public class UpdateCustomerForm {
     @ApiModelProperty (required = true)
     private Date birthday;
 
-    @NotNull(message = "gender cannot be null")
-    @ApiModelProperty (required = true)
-    private Integer gender;
-
-
     private Boolean isLoyalty;
     private Integer loyaltyLevel;
     private Integer saleOff;
