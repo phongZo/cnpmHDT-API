@@ -104,10 +104,14 @@ public class CustomerController extends ABasicController{
         if (accountCheck > 0) {
             throw new RequestException(ErrorCode.ACCOUNT_ERROR_EXIST, "Phone is existed");
         }
+
+
         Group group = groupRepository.findFirstByKind(cnpmHDTConstant.GROUP_KIND_CUSTOMER);
         if (group == null) {
             throw new RequestException(ErrorCode.GROUP_ERROR_NOT_FOUND, "Group does not exist!");
         }
+
+
         // Map the data from CreateCustomerForm into Entity Customer
         Customer customer = customerMapper.fromCreateCustomerFormToEntity(createCustomerForm);
 
