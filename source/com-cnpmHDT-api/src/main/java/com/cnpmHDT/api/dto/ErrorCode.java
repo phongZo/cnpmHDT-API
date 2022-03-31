@@ -52,6 +52,13 @@ public class ErrorCode {
     public static final String CUSTOMER_ERROR_NOT_FOUND = "ERROR-CUSTOMER-001";
     public static final String CUSTOMER_ERROR_BAD_REQUEST = "ERROR-CUSTOMER-002";
 
+    /**
+     * Province error code
+     */
+    public static final String PROVINCE_ERROR_UNAUTHORIZED = "ERROR-PROVINCE-000";
+    public static final String PROVINCE_ERROR_NOT_FOUND = "ERROR-PROVINCE-001";
+    public static final String PROVINCE_ERROR_BAD_REQUEST = "ERROR-PROVINCE-002";
+
 
 
     private ErrorCode() { throw new IllegalStateException("Utility class"); }
