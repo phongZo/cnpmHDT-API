@@ -34,7 +34,6 @@ public interface CustomerMapper {
     @Mapping(source = "customerAddress", target = "address")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "birthday", target = "birthday")
-    @Mapping(source = "gender", target = "gender")
     @Mapping(source = "isLoyalty", target = "isLoyalty")
     @Mapping(source = "loyaltyLevel", target = "loyaltyLevel")
     @Mapping(source = "saleOff", target = "saleOff")
@@ -43,6 +42,9 @@ public interface CustomerMapper {
     void fromUpdateCustomerFormToEntity(UpdateCustomerForm updateCustomerForm, @MappingTarget Customer customer);
 
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "account.fullName", target = "fullName")
+    @Mapping(source = "account.email", target = "email")
+    @Mapping(source = "account.phone", target = "phone")
     @Mapping(source = "address", target = "addressCustomer")
     @Mapping(source = "birthday", target = "birthdayCustomer")
     @Mapping(source = "gender", target = "genderCustomer")

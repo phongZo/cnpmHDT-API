@@ -121,7 +121,6 @@ public class CustomerController extends ABasicController{
         customerRepository.save(customer);
         apiMessageDto.setMessage("Create customer success");
         return apiMessageDto;
-
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)

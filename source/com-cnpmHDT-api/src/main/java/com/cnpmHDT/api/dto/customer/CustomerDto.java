@@ -7,6 +7,9 @@ import java.util.Date;
 
 @Data
 public class CustomerDto extends ABasicAdminDto {
+    private String fullName;
+    private String email;
+    private String phone;
     private String addressCustomer;
     private Date birthdayCustomer;
     private Integer genderCustomer;
