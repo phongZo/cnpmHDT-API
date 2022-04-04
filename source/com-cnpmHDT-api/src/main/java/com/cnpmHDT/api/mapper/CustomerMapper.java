@@ -41,6 +41,16 @@ public interface CustomerMapper {
     @Named("adminUpdateMapping")
     void fromUpdateCustomerFormToEntity(UpdateCustomerForm updateCustomerForm, @MappingTarget Customer customer);
 
+    @Mapping(source = "account.email", target = "email")
+    @Mapping(source = "account.fullName", target = "fullName")
+    @Mapping(source = "account.phone", target = "phone")
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "address", target = "addressCustomer")
+    @Mapping(source = "birthday", target = "birthdayCustomer")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientGetMapping")
+    CustomerDto fromEntityToCustomerProfileDto(Customer customer);
+
     @Mapping(source = "id", target = "id")
     @Mapping(source = "account.fullName", target = "fullName")
     @Mapping(source = "account.email", target = "email")

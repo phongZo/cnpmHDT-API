@@ -123,6 +123,22 @@ public class CustomerController extends ABasicController{
         return apiMessageDto;
     }
 
+    @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<CustomerDto> getProfile() {
+        if(!isCustomer()){
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_UNAUTHORIZED, "Not allowed get.");
+        }
+        ApiMessageDto<CustomerDto> result = new ApiMessageDto<>();
+        Long id = getCurrentUserId();
+        Customer customer = customerRepository.findCustomerByAccountId(id);
+        if(customer == null || !customer.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)){
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_NOT_FOUND, "Not found customer.");
+        }
+        result.setData(customerMapper.fromEntityToCustomerProfileDto(customer));
+        result.setMessage("Get customer success");
+        return result;
+    }
+
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateCustomerForm updateCustomerForm, BindingResult bindingResult) {
         if(!isAdmin()){
