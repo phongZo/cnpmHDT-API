@@ -17,6 +17,10 @@ public class CreateCustomerForm {
     @ApiModelProperty (required = true)                     // display that this field is required
     private String customerFullName;
 
+    @NotEmpty(message = "customerUserName cannot be null")  //This field can not be empty (for String)
+    @ApiModelProperty (required = true)                     // display that this field is required
+    private String customerUsername;
+
     @ApiModelProperty(name = "customer Password")
     private String customerPassword;
 

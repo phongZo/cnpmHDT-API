@@ -17,6 +17,7 @@ import java.util.List;
 public interface CustomerMapper {
     @Mapping(source = "customerEmail", target = "account.email")
     @Mapping(source = "customerFullName", target = "account.fullName")
+    @Mapping(source = "customerUsername", target = "account.username")
     @Mapping(source = "customerPhone", target = "account.phone")
     @Mapping(source = "customerAddress", target = "address")
     @Mapping(source = "status", target = "status")
