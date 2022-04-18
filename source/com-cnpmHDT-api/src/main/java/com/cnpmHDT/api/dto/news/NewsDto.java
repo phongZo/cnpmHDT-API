@@ -11,7 +11,4 @@ public class NewsDto extends ABasicAdminDto {
     private String avatar;
     private String banner;
     private String description;
-    private Long categoryId;
-    private Integer pinTop;
-    private Integer kind;
 }

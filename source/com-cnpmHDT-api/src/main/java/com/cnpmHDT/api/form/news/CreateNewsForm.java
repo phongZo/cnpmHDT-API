@@ -28,17 +28,6 @@ public class CreateNewsForm {
     @ApiModelProperty(required = true)
     private String description;
 
-    @NotNull(message = "categoryId cannot be null")
-    @ApiModelProperty(required = true)
-    private Long categoryId;
-
-    private Integer pinTop;
-
-    @NotNull(message = "kind cannot be null")
-    @ApiModelProperty(required = true)
-    @CategoryKind
-    private Integer kind;
-
     @NotNull(message = "status cannot be null")
     @ApiModelProperty(required = true)
     @Status

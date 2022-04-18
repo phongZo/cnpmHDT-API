@@ -17,10 +17,8 @@ public class Category extends Auditable<String> {
     private Long id;
     private String name;
     private String description;
-    private String image;
     private Integer ordering;
 
-    private Integer kind;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
