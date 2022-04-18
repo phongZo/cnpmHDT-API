@@ -6,6 +6,7 @@ import com.cnpmHDT.api.form.category.CreateCategoryForm;
 import com.cnpmHDT.api.form.category.UpdateCategoryForm;
 import com.cnpmHDT.api.form.customer.CreateCustomerForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerForm;
+import com.cnpmHDT.api.form.customer.UpdateCustomerProfileForm;
 import com.cnpmHDT.api.storage.model.Category;
 import com.cnpmHDT.api.storage.model.Customer;
 import org.mapstruct.*;
@@ -44,9 +45,12 @@ public interface CustomerMapper {
     @Mapping(source = "account.email", target = "email")
     @Mapping(source = "account.fullName", target = "fullName")
     @Mapping(source = "account.phone", target = "phone")
+    @Mapping(source = "gender", target = "genderCustomer")
     @Mapping(source = "id", target = "id")
     @Mapping(source = "address", target = "addressCustomer")
+    @Mapping(source = "loyaltyLevel", target = "loyaltyLevelCustomer")
     @Mapping(source = "birthday", target = "birthdayCustomer")
+    @Mapping(source = "account.username", target = "username")
     @BeanMapping(ignoreByDefault = true)
     @Named("clientGetMapping")
     CustomerDto fromEntityToCustomerProfileDto(Customer customer);
@@ -72,5 +76,15 @@ public interface CustomerMapper {
 
     @IterableMapping(elementTargetType = CustomerDto.class, qualifiedByName = "adminGetMapping")
     List<CustomerDto> fromEntityListToCustomerDtoList(List<Customer> customers);
+
+    @Mapping(source = "customerEmail", target = "account.email")
+    @Mapping(source = "customerFullName", target = "account.fullName")
+    @Mapping(source = "birthday", target = "birthday")
+    @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "address", target = "address")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientUpdateMapping")
+    void fromUpdateCustomerProfileFormToEntity(UpdateCustomerProfileForm updateCustomerProfileForm, @MappingTarget Customer customer);
+
 
 }

@@ -11,6 +11,7 @@ import com.cnpmHDT.api.exception.RequestException;
 
 import com.cnpmHDT.api.form.customer.CreateCustomerForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerForm;
+import com.cnpmHDT.api.form.customer.UpdateCustomerProfileForm;
 import com.cnpmHDT.api.mapper.CustomerMapper;
 import com.cnpmHDT.api.service.cnpmHDTApiService;
 import com.cnpmHDT.api.storage.criteria.CustomerCriteria;
@@ -138,6 +139,32 @@ public class CustomerController extends ABasicController{
         result.setMessage("Get customer success");
         return result;
     }
+
+    @PutMapping(value = "/update-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<String> updateProfile(@Valid @RequestBody UpdateCustomerProfileForm updateCustomerProfileForm, BindingResult bindingResult) {
+        if(!isCustomer()){
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_UNAUTHORIZED, "Not allowed to update.");
+        }
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        Customer customer = customerRepository.findCustomerByAccountId(getCurrentUserId());
+        if(customer == null) {
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_NOT_FOUND, "Not found customer.");
+        }
+//        if(!passwordEncoder.matches(updateCustomerProfileForm.getOldPassword(), customer.getAccount().getPassword())){
+//            throw new RequestException(ErrorCode.CUSTOMER_ERROR_BAD_REQUEST, "Old password not match");
+//        }
+//        if (StringUtils.isNoneBlank(updateCustomerProfileForm.getCustomerAvatarPath())) {
+//            if(!updateCustomerProfileForm.getCustomerAvatarPath().equals(customer.getAccount().getAvatarPath())){
+//                landingIsApiService.deleteFile(customer.getAccount().getAvatarPath());
+//            }
+//            customer.getAccount().setAvatarPath(updateCustomerProfileForm.getCustomerAvatarPath());
+//        }
+        customerMapper.fromUpdateCustomerProfileFormToEntity(updateCustomerProfileForm, customer);
+        customerRepository.save(customer);
+        apiMessageDto.setMessage("Update customer success");
+        return apiMessageDto;
+    }
+
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateCustomerForm updateCustomerForm, BindingResult bindingResult) {
