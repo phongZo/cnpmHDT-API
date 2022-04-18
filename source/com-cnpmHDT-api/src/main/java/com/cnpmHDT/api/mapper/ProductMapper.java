@@ -36,9 +36,10 @@ public interface ProductMapper {
     @Mapping(source = "price", target = "productPrice")
     @Mapping(source = "image", target = "productImage")
     @Mapping(source = "description", target = "productDescription")
-    @Mapping(source = "shortDescription", target = "productShortDescription")
     @Mapping(source = "category.id", target = "productCategoryId")
+    @Mapping(source = "shortDescription", target = "productShortDescription")
     @Mapping(source = "saleoff", target = "productSaleOff")
+
     @BeanMapping(ignoreByDefault = true)
     @Named("adminGetMapping")
     ProductDto fromEntityToAdminDto(Product product);
