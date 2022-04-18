@@ -56,6 +56,7 @@ public interface CustomerMapper {
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "modifiedBy", target = "modifiedBy")
     @Mapping(source = "createdBy", target = "createdBy")
+
     @BeanMapping(ignoreByDefault = true)
     @Named("adminGetMapping")
     CustomerDto fromEntityToAdminDto(Customer customer);
