@@ -16,4 +16,5 @@ public class CustomerDto extends ABasicAdminDto {
     private Boolean isLoyaltyCustomer;
     private Integer loyaltyLevelCustomer;
     private Integer saleOffCustomer;
+    private String username;
 }
