@@ -122,9 +122,6 @@ public class CategoryController extends ABasicController{
             category.getCategoryList().forEach(child -> child.setStatus(updateCategoryForm.getStatus()));
             categoryRepository.saveAll(category.getCategoryList());
         }
-        if(StringUtils.isNoneBlank(category.getImage()) && !updateCategoryForm.getCategoryImage().equals(category.getImage())) {
-            cnpmHDTApiService.deleteFile(category.getImage());
-        }
         categoryMapper.fromUpdateCategoryFormToEntity(updateCategoryForm, category);
         categoryRepository.save(category);
         apiMessageDto.setMessage("Update category success");
@@ -142,7 +139,6 @@ public class CategoryController extends ABasicController{
         if(category == null) {
             throw new RequestException(ErrorCode.CATEGORY_ERROR_NOT_FOUND, "Not found category");
         }
-        cnpmHDTApiService.deleteFile(category.getImage());
         categoryRepository.delete(category);
         result.setMessage("Delete category success");
         return result;

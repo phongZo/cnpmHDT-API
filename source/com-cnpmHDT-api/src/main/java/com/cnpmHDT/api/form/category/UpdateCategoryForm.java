@@ -22,9 +22,6 @@ public class UpdateCategoryForm {
     @ApiModelProperty(required = true)
     private String categoryDescription;
 
-    @ApiModelProperty(required = true)
-    private String categoryImage;
-
     @ApiModelProperty(name = "categoryOrdering")
     private Integer categoryOrdering;
 

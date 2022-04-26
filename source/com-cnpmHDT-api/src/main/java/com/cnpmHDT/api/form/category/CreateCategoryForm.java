@@ -18,16 +18,8 @@ public class CreateCategoryForm {
     @ApiModelProperty(required = true)
     private String categoryDescription;
 
-    @ApiModelProperty(required = true)
-    private String categoryImage;
-
     @ApiModelProperty(name = "categoryOrdering")
     private Integer categoryOrdering;
-
-    @CategoryKind
-    @NotNull(message = "categoryKind cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer categoryKind;
 
     @ApiModelProperty(name = "parentId")
     private Long parentId;

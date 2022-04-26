@@ -125,7 +125,8 @@ public class AccountController extends ABasicController{
 
     private String getAppendStringRole (Account account) {
         String appendStringRole = "";
-        if(Objects.equals(account.getKind(), cnpmHDTConstant.USER_KIND_ADMIN)){
+        if(Objects.equals(account.getKind(), cnpmHDTConstant.USER_KIND_ADMIN)
+            || Objects.equals(account.getKind(), cnpmHDTConstant.USER_KIND_CUSTOMER)){
             appendStringRole = "/account/profile,/account/update_profile,/account/logout";
         } else {
             throw new RequestException(ErrorCode.GENERAL_ERROR_UNAUTHORIZED);
