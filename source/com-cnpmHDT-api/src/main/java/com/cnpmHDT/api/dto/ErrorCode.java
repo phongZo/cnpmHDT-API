@@ -64,7 +64,9 @@ public class ErrorCode {
     public static final String PRODUCT_ERROR_BAD_REQUEST = "ERROR-PRODUCT-002";
 
 
-
+    public static final String ORDERS_ERROR_UNAUTHORIZED = "ERROR-ORDERS-000";
+    public static final String ORDERS_ERROR_NOT_FOUND = "ERROR-ORDERS-001";
+    public static final String ORDERS_ERROR_BAD_REQUEST = "ERROR-ORDERS-002";
 
     private ErrorCode() { throw new IllegalStateException("Utility class"); }
 }
