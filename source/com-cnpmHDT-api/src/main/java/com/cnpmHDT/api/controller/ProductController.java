@@ -27,6 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/product")
@@ -138,5 +139,21 @@ public class ProductController extends ABasicController {
         productRepository.delete(product);
         result.setMessage("Delete product success");
         return result;
+    }
+
+    @GetMapping(value = "/products-by-category/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListObj<ProductDto>> getProductByCategoryId(@PathVariable("categoryId") Long categoryId) {
+        if (!isAdmin()) {
+            throw new RequestException(ErrorCode.PRODUCT_ERROR_UNAUTHORIZED, "Not allowed get list list product type.");
+        }
+        ApiMessageDto<ResponseListObj<ProductDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
+
+        List<Product> listProduct = productRepository.findAllByCategory(categoryRepository.findById(categoryId).orElse(null));
+        ResponseListObj<ProductDto> responseListObj = new ResponseListObj<>();
+        responseListObj.setData(productMapper.fromEntityListToProductDtoList(listProduct));
+        responseListObjApiMessageDto.setData(responseListObj);
+        responseListObjApiMessageDto.setMessage("Get list product type success");
+
+        return responseListObjApiMessageDto;
     }
 }

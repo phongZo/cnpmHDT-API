@@ -19,7 +19,5 @@ public class OrdersDto extends ABasicAdminDto {
     private String ordersReceiverPhone; // Sdt nguoi nhan
     private String ordersCode; // Random 6 chữ
     private Integer ordersPaymentMethod; // Phương thức thanh toán: 1: COD, 2: Online
-
-
-
+    
 }
