@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package com.cnpmHDT.api.storage.criteria;public class OrdersDetailCriteria {
-=======
 package com.cnpmHDT.api.storage.criteria;
 
 import com.cnpmHDT.api.storage.model.OrdersDetail;
@@ -41,5 +38,4 @@ public class OrdersDetailCriteria {
             }
         };
     }
->>>>>>> Stashed changes
 }

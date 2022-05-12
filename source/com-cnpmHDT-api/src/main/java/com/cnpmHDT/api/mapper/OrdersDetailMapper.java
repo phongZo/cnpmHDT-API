@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package com.cnpmHDT.api.mapper;public interface OrdersDetailMapper {
-=======
 package com.cnpmHDT.api.mapper;
 
 import com.cnpmHDT.api.dto.ordersdetail.OrdersDetailDto;
@@ -41,6 +38,4 @@ public interface OrdersDetailMapper {
 
     @IterableMapping(elementTargetType = OrdersDetailDto.class, qualifiedByName = "adminGetMapping")
     List<OrdersDetailDto> fromEntityListToOrdersDetailDtoList(List<OrdersDetail> ordersDetails);
-
->>>>>>> Stashed changes
 }

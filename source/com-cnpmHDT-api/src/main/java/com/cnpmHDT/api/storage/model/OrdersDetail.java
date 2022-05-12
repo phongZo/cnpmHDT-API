@@ -1,9 +1,4 @@
 package com.cnpmHDT.api.storage.model;
-
-<<<<<<< Updated upstream
-public class OrderDetail {
-}
-=======
 import lombok.Data;
 
 import javax.persistence.*;
@@ -26,4 +21,3 @@ public class OrdersDetail{
     private Double price;
     private Integer amount;
 }
->>>>>>> Stashed changes

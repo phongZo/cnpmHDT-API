@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package com.cnpmHDT.api.controller;public class OrdersDetailController {
-=======
 package com.cnpmHDT.api.controller;
 
 import com.cnpmHDT.api.constant.cnpmHDTConstant;
@@ -144,5 +141,4 @@ public class OrdersDetailController extends ABasicController {
         result.setMessage("Delete orders detail success");
         return result;
     }
->>>>>>> Stashed changes
 }

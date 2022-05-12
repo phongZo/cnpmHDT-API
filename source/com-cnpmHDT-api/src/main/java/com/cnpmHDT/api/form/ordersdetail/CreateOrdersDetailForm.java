@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package com.cnpmHDT.api.form.ordersdetail;public class CreateOrdersDetailForm {
-=======
 package com.cnpmHDT.api.form.ordersdetail;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,5 +23,4 @@ public class CreateOrdersDetailForm {
     @NotNull(message = "ordersDetailAmount cannot be null")
     @ApiModelProperty(required = true)
     private Integer ordersDetailAmount;
->>>>>>> Stashed changes
 }

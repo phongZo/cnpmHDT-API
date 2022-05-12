@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-package com.cnpmHDT.api.storage.model;public class Orders {
-}
-=======
 package com.cnpmHDT.api.storage.model;
 
 import lombok.Getter;
@@ -40,4 +36,3 @@ public class Orders extends Auditable<String>{
 
     private Integer paymentMethod; // Phương thức thanh toán: 1: COD, 2: Online
 }
->>>>>>> Stashed changes
