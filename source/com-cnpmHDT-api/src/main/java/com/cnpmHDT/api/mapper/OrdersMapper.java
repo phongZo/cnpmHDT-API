@@ -11,12 +11,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrdersMapper {
-    @Mapping(source = "ordersCustomer", target = "customer.id")
+    @Mapping(source = "customerId", target = "customer.id")
     @Mapping(source = "ordersSaleOff", target = "saleOff")
-    @Mapping(source = "ordersTotalMoney", target = "totalMoney")
-    @Mapping(source = "ordersVat", target = "vat")
-    @Mapping(source = "ordersState", target = "state")
-    @Mapping(source = "ordersPrevState", target = "prevState")
     @Mapping(source = "ordersAddress", target = "address")
     @Mapping(source = "ordersReceiverName", target = "receiverName")
     @Mapping(source = "ordersReceiverPhone", target = "receiverPhone")
@@ -26,12 +22,9 @@ public interface OrdersMapper {
     Orders fromCreateOrdersFormToEntity(CreateOrdersForm createOrdersForm);
 
     @Mapping(source = "ordersId", target = "id")
-    @Mapping(source = "ordersCustomer", target = "customer.id")
+    @Mapping(source = "customerId", target = "customer.id")
     @Mapping(source = "ordersSaleOff", target = "saleOff")
-    @Mapping(source = "ordersVat", target = "vat")
     @Mapping(source = "ordersAddress", target = "address")
-    @Mapping(source = "ordersState", target = "state")
-    @Mapping(source = "ordersPrevState", target = "prevState")
     @Mapping(source = "ordersReceiverName", target = "receiverName")
     @Mapping(source = "ordersReceiverPhone", target = "receiverPhone")
     @Mapping(source = "paymentMethod", target = "paymentMethod")
@@ -42,9 +35,8 @@ public interface OrdersMapper {
     @Mapping(source = "id", target = "ordersId")
     @Mapping(source = "customer.id", target = "customerId")
     @Mapping(source = "totalMoney", target = "ordersTotalMoney")
-    @Mapping(source = "vat", target = "ordersVat")
     @Mapping(source = "state", target = "ordersState")
-    @Mapping(source = "prevState", target = "ordersPrevState")
+    @Mapping(source = "vat", target = "ordersVat")
     @Mapping(source = "address", target = "ordersAddress")
     @Mapping(source = "receiverName", target = "ordersReceiverName")
     @Mapping(source = "receiverPhone", target = "ordersReceiverPhone")

@@ -1,10 +1,13 @@
 package com.cnpmHDT.api.form.orders;
 
+import com.cnpmHDT.api.form.ordersdetail.UpdateOrdersDetailForm;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
+
 @Data
 public class UpdateOrdersForm {
 
@@ -12,24 +15,12 @@ public class UpdateOrdersForm {
     @ApiModelProperty(required = true)
     private Long ordersId;
 
-    @NotEmpty(message = "Customer cannot be null")
+    @NotNull(message = "Customer cannot be null")
     @ApiModelProperty(required = true)
-    private String ordersCustomer;
+    private Long customerId;
 
     @ApiModelProperty(name = "ordersSaleOff")
     private Integer ordersSaleOff;
-
-    @NotEmpty(message = "ordersVat cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordersVat;
-
-    @NotEmpty(message = "ordersState cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordersState;
-
-    @NotEmpty(message = "ordersPrevState cannot be null")
-    @ApiModelProperty(required = true)
-    private Integer ordersPrevState;
 
     @NotNull(message = "ordersAddress cannot be null")
     @ApiModelProperty(required = true)
@@ -47,4 +38,5 @@ public class UpdateOrdersForm {
     @ApiModelProperty(required = true)
     private Integer paymentMethod;
 
+    private List<UpdateOrdersDetailForm> updateOrdersDetailFormList;
 }

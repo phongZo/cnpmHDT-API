@@ -31,6 +31,8 @@ public class cnpmHDTConstant {
     public static final Integer PROVINCE_KIND_DISTRICT = 1;
     public static final Integer PROVINCE_KIND_COMMUNE = 2;
 
+    public static final Integer ORDERS_STATE_PENDING = 1;
+
 
     public static final Integer GENDER_MALE = 1;
     public static final Integer GENDER_FEMALE = 2;

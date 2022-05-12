@@ -12,10 +12,6 @@ public class UpdateOrdersDetailForm {
     @ApiModelProperty(required = true)
     private Long ordersDetailId;
 
-    @NotNull(message = "ordersDetailPrice cannot be null")
-    @ApiModelProperty(required = true)
-    private Double ordersDetailPrice;
-
     @NotNull(message = "ordersDetailAmount cannot be null")
     @ApiModelProperty(required = true)
     private Integer ordersDetailAmount;
