@@ -5,6 +5,7 @@ import com.cnpmHDT.api.dto.customer.CustomerDto;
 import com.cnpmHDT.api.form.category.CreateCategoryForm;
 import com.cnpmHDT.api.form.category.UpdateCategoryForm;
 import com.cnpmHDT.api.form.customer.CreateCustomerForm;
+import com.cnpmHDT.api.form.customer.CustomerRegisterForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerProfileForm;
 import com.cnpmHDT.api.storage.model.Category;
@@ -88,5 +89,13 @@ public interface CustomerMapper {
     @Named("clientUpdateMapping")
     void fromUpdateCustomerProfileFormToEntity(UpdateCustomerProfileForm updateCustomerProfileForm, @MappingTarget Customer customer);
 
+
+    @Mapping(source = "customerPhone", target = "account.phone")
+    @Mapping(source = "customerFullName", target = "account.fullName")
+    @Mapping(source = "customerUserName", target = "account.username")
+    @Mapping(source = "address", target = "address")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientCreateMapping")
+    Customer fromCustomerRegisterFormToEntity(CustomerRegisterForm customerRegisterForm);
 
 }
