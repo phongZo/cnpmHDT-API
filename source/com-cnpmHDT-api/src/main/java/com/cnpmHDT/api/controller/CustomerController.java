@@ -10,17 +10,21 @@ import com.cnpmHDT.api.dto.customer.CustomerDto;
 import com.cnpmHDT.api.exception.RequestException;
 
 import com.cnpmHDT.api.form.customer.CreateCustomerForm;
+import com.cnpmHDT.api.form.customer.CustomerRegisterForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerForm;
 import com.cnpmHDT.api.form.customer.UpdateCustomerProfileForm;
 import com.cnpmHDT.api.mapper.CustomerMapper;
 import com.cnpmHDT.api.service.cnpmHDTApiService;
 import com.cnpmHDT.api.storage.criteria.CustomerCriteria;
 
+import com.cnpmHDT.api.storage.model.Account;
 import com.cnpmHDT.api.storage.model.Customer;
 import com.cnpmHDT.api.storage.model.Group;
+import com.cnpmHDT.api.storage.model.Province;
 import com.cnpmHDT.api.storage.repository.AccountRepository;
 import com.cnpmHDT.api.storage.repository.CustomerRepository;
 import com.cnpmHDT.api.storage.repository.GroupRepository;
+import com.cnpmHDT.api.storage.repository.ProvinceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,6 +51,9 @@ public class CustomerController extends ABasicController{
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    ProvinceRepository provinceRepository;
 
     @Autowired
     GroupRepository groupRepository;
@@ -124,6 +131,29 @@ public class CustomerController extends ABasicController{
         return apiMessageDto;
     }
 
+    @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<String> register(@Valid @RequestBody CustomerRegisterForm customerRegisterForm, BindingResult bindingResult) {
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        Account accountCheck = accountRepository.findAccountByUsername(customerRegisterForm.getCustomerUsername());
+        if (accountCheck != null){
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_BAD_REQUEST, "Phone and username already existed");
+        }
+        Integer groupKind = cnpmHDTConstant.GROUP_KIND_CUSTOMER;
+        Group group = groupRepository.findFirstByKind(groupKind);
+        if (group == null) {
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_BAD_REQUEST, "Group does not exist!");
+        }
+        Customer customer = customerMapper.fromCustomerRegisterFormToEntity(customerRegisterForm);
+        customer.getAccount().setGroup(group);
+        customer.getAccount().setPassword(passwordEncoder.encode(customerRegisterForm.getCustomerPassword()));
+        customer.getAccount().setKind(cnpmHDTConstant.USER_KIND_CUSTOMER);
+        customerRepository.save(customer);
+
+        apiMessageDto.setMessage("Register account success");
+        return apiMessageDto;
+    }
+
+
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<CustomerDto> getProfile() {
         if(!isCustomer()){
@@ -150,15 +180,6 @@ public class CustomerController extends ABasicController{
         if(customer == null) {
             throw new RequestException(ErrorCode.CUSTOMER_ERROR_NOT_FOUND, "Not found customer.");
         }
-//        if(!passwordEncoder.matches(updateCustomerProfileForm.getOldPassword(), customer.getAccount().getPassword())){
-//            throw new RequestException(ErrorCode.CUSTOMER_ERROR_BAD_REQUEST, "Old password not match");
-//        }
-//        if (StringUtils.isNoneBlank(updateCustomerProfileForm.getCustomerAvatarPath())) {
-//            if(!updateCustomerProfileForm.getCustomerAvatarPath().equals(customer.getAccount().getAvatarPath())){
-//                landingIsApiService.deleteFile(customer.getAccount().getAvatarPath());
-//            }
-//            customer.getAccount().setAvatarPath(updateCustomerProfileForm.getCustomerAvatarPath());
-//        }
         customerMapper.fromUpdateCustomerProfileFormToEntity(updateCustomerProfileForm, customer);
         customerRepository.save(customer);
         apiMessageDto.setMessage("Update customer success");
@@ -199,6 +220,8 @@ public class CustomerController extends ABasicController{
         apiMessageDto.setMessage("Update customer success");
         return apiMessageDto;
     }
+
+
 
     @DeleteMapping(value = "/delete/{id}")
     public ApiMessageDto<CustomerDto> delete(@PathVariable("id") Long id) {

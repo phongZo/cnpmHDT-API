@@ -5,17 +5,13 @@ import com.cnpmHDT.api.form.account.*;
 import com.cnpmHDT.api.jwt.UserJwt;
 import com.cnpmHDT.api.mapper.AccountMapper;
 import com.cnpmHDT.api.service.cnpmHDTApiService;
-import com.cnpmHDT.api.utils.AESUtils;
-import com.cnpmHDT.api.utils.ConvertUtils;
 import com.cnpmHDT.api.utils.DateUtils;
 import com.cnpmHDT.api.dto.ApiMessageDto;
 import com.cnpmHDT.api.dto.ResponseListObj;
 import com.cnpmHDT.api.dto.account.LoginDto;
-import com.cnpmHDT.api.form.account.*;
 import com.cnpmHDT.api.dto.ErrorCode;
 import com.cnpmHDT.api.dto.account.AccountAdminDto;
 import com.cnpmHDT.api.dto.account.AccountDto;
-import com.cnpmHDT.api.dto.account.ForgetPasswordDto;
 import com.cnpmHDT.api.exception.RequestException;
 import com.cnpmHDT.api.intercepter.MyAuthentication;
 import com.cnpmHDT.api.jwt.JWTUtils;
@@ -87,8 +83,16 @@ public class AccountController extends ABasicController{
         if (account == null || !passwordEncoder.matches(loginForm.getPassword(), account.getPassword()) || !Objects.equals(account.getStatus() , cnpmHDTConstant.STATUS_ACTIVE)) {
             throw new RequestException(ErrorCode.GENERAL_ERROR_LOGIN_FAILED, "Login fail, check your username or password");
         }
+        LoginDto loginDto = generateJWT(account);
+        apiMessageDto.setData(loginDto);
+        apiMessageDto.setMessage("Login account success");
+        account.setLastLogin(new Date());
+        //update lastLogin
+        accountRepository.save(account);
+        return apiMessageDto;
+    }
 
-        //Tao xong tra ve cai gi?
+    private LoginDto generateJWT(Account account) {
         LocalDate parsedDate = LocalDate.now();
         parsedDate = parsedDate.plusDays(7);
 
@@ -96,8 +100,6 @@ public class AccountController extends ABasicController{
         qrJwt.setAccountId(account.getId());
         qrJwt.setKind(account.getKind().toString());
         String appendStringRole = getAppendStringRole(account);
-
-
         qrJwt.setUsername(account.getUsername());
         qrJwt.setPemission(cnpmHDTApiService.convertGroupToUri(account.getGroup().getPermissions())+appendStringRole);
         qrJwt.setUserKind(account.getKind());
@@ -106,21 +108,22 @@ public class AccountController extends ABasicController{
         securityContext.setAuthentication(new MyAuthentication(qrJwt));
 
 
+
         log.info("jwt user ne: {}", qrJwt);
         String token = JWTUtils.createJWT(JWTUtils.ALGORITHMS_HMAC, "authenticationToken.getId().toString()", qrJwt, DateUtils.convertToDateViaInstant(parsedDate));
         LoginDto loginDto = new LoginDto();
         loginDto.setFullName(account.getFullName());
         loginDto.setId(account.getId());
         loginDto.setToken(token);
-        loginDto.setUsername(account.getUsername());
+        if (account.getUsername() != null){
+            loginDto.setUsername(account.getUsername());
+        }
+        else if(account.getPhone() != null){
+            loginDto.setUsername(account.getPhone());
+        }
         loginDto.setKind(account.getKind());
 
-        apiMessageDto.setData(loginDto);
-        apiMessageDto.setMessage("Login account success");
-        account.setLastLogin(new Date());
-        //update lastLogin
-        accountRepository.save(account);
-        return apiMessageDto;
+        return loginDto;
     }
 
     private String getAppendStringRole (Account account) {
@@ -161,7 +164,6 @@ public class AccountController extends ABasicController{
         accountRepository.save(account);
         apiMessageDto.setMessage("Create account admin success");
         return apiMessageDto;
-
     }
 
     @PutMapping(value = "/update_admin", produces = MediaType.APPLICATION_JSON_VALUE)
