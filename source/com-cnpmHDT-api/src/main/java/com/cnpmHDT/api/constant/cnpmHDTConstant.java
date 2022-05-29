@@ -16,6 +16,12 @@ public class cnpmHDTConstant {
     public static final Integer STATUS_LOCK = -1;
     public static final Integer STATUS_DELETE = -2;
 
+    public static final Integer ORDER_VAT = 10;
+
+    public static final Integer ORDERS_STATE_CREATED = 0;
+    public static final Integer ORDERS_STATE_DONE = 1;
+    public static final Integer ORDERS_STATE_CANCELED = 2;
+
 
     public static final Integer GROUP_KIND_CUSTOMER = 2;
 
