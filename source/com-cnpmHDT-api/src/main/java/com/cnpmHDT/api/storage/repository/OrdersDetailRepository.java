@@ -1,9 +1,12 @@
 package com.cnpmHDT.api.storage.repository;
 
 import com.cnpmHDT.api.storage.model.OrdersDetail;
+import com.cnpmHDT.api.storage.model.Orders;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface OrdersDetailRepository extends JpaRepository<OrdersDetail, Long>, JpaSpecificationExecutor<OrdersDetail> {
+import java.util.List;
 
+public interface OrdersDetailRepository extends JpaRepository<OrdersDetail, Long>, JpaSpecificationExecutor<OrdersDetail> {
+    List<OrdersDetail> findAllByOrders(Orders orders);
 }
