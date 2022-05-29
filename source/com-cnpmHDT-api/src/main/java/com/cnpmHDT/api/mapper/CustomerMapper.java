@@ -92,7 +92,7 @@ public interface CustomerMapper {
 
     @Mapping(source = "customerPhone", target = "account.phone")
     @Mapping(source = "customerFullName", target = "account.fullName")
-    @Mapping(source = "customerUserName", target = "account.username")
+    @Mapping(source = "customerUsername", target = "account.username")
     @Mapping(source = "address", target = "address")
     @BeanMapping(ignoreByDefault = true)
     @Named("clientCreateMapping")
