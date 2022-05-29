@@ -9,7 +9,8 @@ import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {ProductMapper.class})
 public interface OrdersDetailMapper {
     @Mapping(source = "ordersDetailAmount", target = "amount")
     @Mapping(source = "productId", target = "product.id")
@@ -23,15 +24,15 @@ public interface OrdersDetailMapper {
     @Named("adminUpdateMapping")
     void fromUpdateOrdersDetailFormToEntity(UpdateOrdersDetailForm updateOrdersDetailForm, @MappingTarget OrdersDetail ordersDetail);
 
+
     @Mapping(source = "id", target = "ordersDetailId")
+    @Mapping(source = "product", target = "productDto", qualifiedByName = "clientDetailProductGetMapping")
     @Mapping(source = "price", target = "ordersDetailPrice")
     @Mapping(source = "amount", target = "ordersDetailAmount")
-    @Mapping(source = "product.name", target = "productName")
-
     @BeanMapping(ignoreByDefault = true)
-    @Named("adminGetMapping")
-    OrdersDetailDto fromEntityToAdminDto(OrdersDetail ordersDetail);
+    @Named("clientGetMapping")
+    OrdersDetailDto fromEntityToOrdersDetailClientDto(OrdersDetail ordersDetail);
 
-    @IterableMapping(elementTargetType = OrdersDetailDto.class, qualifiedByName = "adminGetMapping")
-    List<OrdersDetailDto> fromEntityListToOrdersDetailDtoList(List<OrdersDetail> ordersDetails);
+    @IterableMapping(elementTargetType = OrdersDetailDto.class, qualifiedByName = "clientGetMapping")
+    List<OrdersDetailDto> fromEntityListToOrdersDetailClientDtoList(List<OrdersDetail> ordersDetailList);
 }

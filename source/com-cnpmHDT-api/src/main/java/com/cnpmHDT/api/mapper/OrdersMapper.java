@@ -49,4 +49,16 @@ public interface OrdersMapper {
 
     @IterableMapping(elementTargetType = OrdersDto.class, qualifiedByName = "adminGetMapping")
     List<OrdersDto> fromEntityListToOrdersDtoList(List<Orders> orders);
+
+    @Mapping(source = "id", target = "ordersId")
+    @Mapping(source = "saleOff", target = "ordersSaleOff")
+    @Mapping(source = "totalMoney", target = "ordersTotalMoney")
+    @Mapping(source = "state", target = "ordersState")
+    @Mapping(source = "address", target = "ordersAddress")
+    @Mapping(source = "code", target = "ordersCode")
+    @Mapping(source = "receiverName", target = "ordersReceiverName")
+    @Mapping(source = "paymentMethod", target = "ordersPaymentMethod")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientGetMapping")
+    OrdersDto fromEntityToClientOrdersDto(Orders orders);
 }
