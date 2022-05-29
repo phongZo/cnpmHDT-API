@@ -24,6 +24,17 @@ public interface OrdersDetailMapper {
     @Named("adminUpdateMapping")
     void fromUpdateOrdersDetailFormToEntity(UpdateOrdersDetailForm updateOrdersDetailForm, @MappingTarget OrdersDetail ordersDetail);
 
+    @Mapping(source = "id", target = "ordersDetailId")
+    @Mapping(source = "price", target = "ordersDetailPrice")
+    @Mapping(source = "amount", target = "ordersDetailAmount")
+    @Mapping(source = "product.name", target = "productName")
+    @Mapping(source = "orders.id", target = "ordersId")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("adminGetMapping")
+    OrdersDetailDto fromEntityToAdminDto(OrdersDetail ordersDetail);
+
+    @IterableMapping(elementTargetType = OrdersDetailDto.class, qualifiedByName = "adminGetMapping")
+    List<OrdersDetailDto> fromEntityListToOrdersDetailDtoList(List<OrdersDetail> ordersDetails);
 
     @Mapping(source = "id", target = "ordersDetailId")
     @Mapping(source = "product", target = "productDto", qualifiedByName = "clientDetailProductGetMapping")

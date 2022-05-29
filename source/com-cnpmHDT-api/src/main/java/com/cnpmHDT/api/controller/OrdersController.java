@@ -187,8 +187,8 @@ public class OrdersController extends ABasicController{
     }
 
     @GetMapping(value = "/client-list",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiMessageDto<ResponseListObj<OrdersDto>> clientList(OrdersCriteria ordersCriteria, Pageable pageable){
-        if(!isCustomer()){
+    public ApiMessageDto<ResponseListObj<OrdersDto>> clientList(OrdersCriteria ordersCriteria, Pageable pageable) {
+        if (!isCustomer()) {
             throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed get.");
         }
         ApiMessageDto<ResponseListObj<OrdersDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
@@ -205,6 +205,22 @@ public class OrdersController extends ABasicController{
         responseListObjApiMessageDto.setMessage("Get list success");
         return responseListObjApiMessageDto;
     }
+    @GetMapping(value = "/detail-by-orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListObj<OrdersDetailDto>> getOrdersDetailByOrdersId(@PathVariable("id") Long id) {
+        if (!isAdmin()) {
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed get list ordersdetail type.");
+        }
+        ApiMessageDto<ResponseListObj<OrdersDetailDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
+
+        List<OrdersDetail> listOrdersDetail = ordersDetailRepository.findAllByOrders(ordersRepository.findById(id).orElse(null));
+        ResponseListObj<OrdersDetailDto> responseListObj = new ResponseListObj<>();
+        responseListObj.setData(ordersDetailMapper.fromEntityListToOrdersDetailDtoList(listOrdersDetail));
+        responseListObjApiMessageDto.setData(responseListObj);
+        responseListObjApiMessageDto.setMessage("Get list ordersdetail type success");
+
+        return responseListObjApiMessageDto;
+    }
+
 
 
     @GetMapping(value = "/client-get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
