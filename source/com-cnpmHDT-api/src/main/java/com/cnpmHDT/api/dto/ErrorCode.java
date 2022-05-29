@@ -68,9 +68,9 @@ public class ErrorCode {
     public static final String ORDERS_ERROR_NOT_FOUND = "ERROR-ORDERS-001";
     public static final String ORDERS_ERROR_BAD_REQUEST = "ERROR-ORDERS-002";
 
-    public static final String ORDERSDETAIL_ERROR_UNAUTHORIZED = "ERROR-ORDERSDETAIL-000";
-    public static final String ORDERSDETAIL_ERROR_NOT_FOUND = "ERROR-ORDERSDETAIL-001";
-    public static final String ORDERSDETAIL_ERROR_BAD_REQUEST = "ERROR-ORDERSDETAIL-002";
+    public static final String ORDERS_DETAIL_ERROR_UNAUTHORIZED = "ERROR-ORDERS-DETAIL-000";
+    public static final String ORDERS_DETAIL_ERROR_NOT_FOUND = "ERROR-ORDERS-DETAIL-001";
+    public static final String ORDERS_DETAIL_ERROR_BAD_REQUEST = "ERROR-ORDERS-DETAIL-002";
 
     private ErrorCode() { throw new IllegalStateException("Utility class"); }
 }

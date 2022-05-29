@@ -11,10 +11,6 @@ import java.util.List;
 @Data
 public class CreateOrdersForm {
 
-    @NotNull(message = "customerId cannot be null")
-    @ApiModelProperty(required = true)
-    private Long customerId;
-
     @ApiModelProperty(name = "ordersSaleOff")
     private Integer ordersSaleOff;
 
@@ -34,5 +30,7 @@ public class CreateOrdersForm {
     @ApiModelProperty(required = true)
     private Integer paymentMethod;
 
+    @NotEmpty(message = "createOrdersDetailFormList cannot be empty")
+    @ApiModelProperty(required = true)
     private List<CreateOrdersDetailForm> createOrdersDetailFormList;
 }
