@@ -9,12 +9,9 @@ import com.cnpmHDT.api.dto.ordersdetail.OrdersDetailDto;
 import com.cnpmHDT.api.exception.RequestException;
 import com.cnpmHDT.api.form.orders.CreateOrdersForm;
 import com.cnpmHDT.api.form.orders.UpdateOrdersForm;
-import com.cnpmHDT.api.form.ordersdetail.CreateOrdersDetailForm;
-import com.cnpmHDT.api.form.ordersdetail.DeleteOrdersDetailForm;
-import com.cnpmHDT.api.form.ordersdetail.UpdateOrdersDetailForm;
+import com.cnpmHDT.api.form.orders.UpdateStateOrdersForm;
 import com.cnpmHDT.api.mapper.OrdersDetailMapper;
 import com.cnpmHDT.api.mapper.OrdersMapper;
-import com.cnpmHDT.api.service.cnpmHDTApiService;
 import com.cnpmHDT.api.storage.criteria.OrdersCriteria;
 import com.cnpmHDT.api.storage.model.*;
 import com.cnpmHDT.api.storage.repository.*;
@@ -33,8 +30,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static java.lang.Double.*;
 
 @RestController
 @RequestMapping("/v1/orders")
@@ -155,6 +150,38 @@ public class OrdersController extends ABasicController{
         }
     }
 
+    @PutMapping(value = "/update-state", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public ApiMessageDto<String> update(@Valid @RequestBody UpdateStateOrdersForm updateStateOrdersForm, BindingResult bindingResult) {
+        if (!isAdmin()) {
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to update.");
+        }
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        Orders orders = ordersRepository.findById(updateStateOrdersForm.getId()).orElse(null);
+        if(orders == null){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Orders Not Found");
+        }
+        checkNewState(updateStateOrdersForm,orders);
+        Integer prevState = orders.getState();
+        orders.setState(updateStateOrdersForm.getState());
+        orders.setPrevState(prevState);
+        ordersRepository.save(orders);
+        apiMessageDto.setMessage("Update orders state success");
+        return apiMessageDto;
+    }
+
+    private void checkNewState(UpdateStateOrdersForm updateStateOrdersForm,Orders orders) {
+        // state mới phải lớn hơn state cũ
+        if((updateStateOrdersForm.getState() <= orders.getState())){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Update orders state must mor than or equal old state");
+        }
+        // State 3 4 không thể update
+        Integer state = orders.getState();
+        if(state.equals(cnpmHDTConstant.ORDERS_STATE_DONE) || state.equals(cnpmHDTConstant.ORDERS_STATE_CANCELED)){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Can not update orders in state 3 or 4");
+        }
+    }
+
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateOrdersForm updateOrdersForm, BindingResult bindingResult) {
@@ -171,82 +198,14 @@ public class OrdersController extends ABasicController{
             throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Can not update info in this state");
         }
         setCustomerUpdateForm(updateOrdersForm, orders);
-        checkSizeProducts(updateOrdersForm);
         //Map update form vô orders --> orders lúc này là orders mới với thông tin mới
         ordersMapper.fromUpdateOrdersFormToEntity(updateOrdersForm,orders);
-        List<OrdersDetail> ordersDetailDeleteList = setDeleteList(updateOrdersForm);
-        List<OrdersDetail> ordersDetailUpdateList = ordersDetailMapper
-                .fromUpdateOrdersDetailFormListToOrdersDetailList(updateOrdersForm.getUpdateOrdersDetailFormList());
-        if(ordersDetailUpdateList != null && !ordersDetailDeleteList.isEmpty()){
-            checkSameProduct(ordersDetailUpdateList,ordersDetailDeleteList);
-        }
-        if(!ordersDetailDeleteList.isEmpty()){
-            ordersDetailRepository.deleteAll(ordersDetailDeleteList);
-        }
-        if(ordersDetailUpdateList != null){
-            checkProducts(orders.getId(),ordersDetailUpdateList);
-            amountPriceCal(orders,ordersDetailUpdateList,orders);
-            ordersDetailRepository.saveAll(ordersDetailUpdateList);
-        }
         ordersRepository.save(orders);
         apiMessageDto.setMessage("Update orders success");
         return apiMessageDto;
     }
 
-    private void checkProducts(Long ordersId ,List<OrdersDetail> ordersDetailList) {
-        int checkIndex = 0;
-        for (OrdersDetail ordersDetail : ordersDetailList){
-            OrdersDetail ordersDetailCheck = ordersDetailRepository.findByProductIdAndOrdersId(ordersDetail.getProduct().getId(),ordersId);
-            if(ordersDetailCheck == null){
-                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Product in index "+ checkIndex +"not have in orders");
-            }
-            ordersDetailCheck.setAmount(ordersDetail.getAmount());
-            ordersDetailList.set(checkIndex,ordersDetailCheck);
-            checkIndex++;
-        }
-    }
 
-    private void checkSameProduct(List<OrdersDetail> ordersDetailUpdateList, List<OrdersDetail> ordersDetailDeleteList) {
-        int checkIndex = 0;
-        for(OrdersDetail ordersDetail : ordersDetailDeleteList){
-            if (ordersDetailUpdateList.contains(ordersDetail)){
-                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Product in index "+ checkIndex +"can not be same");
-            }
-            checkIndex ++;
-        }
-    }
-
-    private List<OrdersDetail> setDeleteList(UpdateOrdersForm updateOrdersForm) {
-        if(updateOrdersForm.getDeleteOrdersDetailFormList() == null){
-            return Collections.emptyList();
-        }
-        int checkIndex = 0;
-        List<OrdersDetail> ordersDetailDeleteList = new ArrayList<>();
-        for (DeleteOrdersDetailForm deleteOrdersDetailForm : updateOrdersForm.getDeleteOrdersDetailFormList()){
-            OrdersDetail ordersDetail = ordersDetailRepository.findById(deleteOrdersDetailForm.getOrderDetailId()).orElse(null);
-            if(ordersDetail == null){
-                throw new RequestException(ErrorCode.ORDERS_DETAIL_ERROR_NOT_FOUND, "Not found orders detail in index " + checkIndex);
-            }
-            ordersDetailDeleteList.add(ordersDetail);
-            checkIndex ++;
-        }
-        return ordersDetailDeleteList;
-    }
-
-    private void checkSizeProducts(UpdateOrdersForm updateOrdersForm) {
-        int sizeOfUpdate = 0;
-        int sizeOfDelete = 0;
-        if(updateOrdersForm.getUpdateOrdersDetailFormList() != null){
-            sizeOfUpdate  = updateOrdersForm.getUpdateOrdersDetailFormList().size();
-        }
-        if(updateOrdersForm.getDeleteOrdersDetailFormList() != null){
-            sizeOfDelete  = updateOrdersForm.getDeleteOrdersDetailFormList().size();
-        }
-        int sizeOfOrderDetailProduct = ordersDetailRepository.countByOrdersId(updateOrdersForm.getOrdersId());
-        if(sizeOfOrderDetailProduct != (sizeOfDelete + sizeOfUpdate)){
-            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Size of product not equal old orders");
-        }
-    }
 
 
     private void setCustomerUpdateForm(UpdateOrdersForm updateOrdersForm, Orders orders) {

@@ -2,7 +2,6 @@ package com.cnpmHDT.api.mapper;
 
 import com.cnpmHDT.api.dto.ordersdetail.OrdersDetailDto;
 import com.cnpmHDT.api.form.ordersdetail.CreateOrdersDetailForm;
-import com.cnpmHDT.api.form.ordersdetail.UpdateOrdersDetailForm;
 import com.cnpmHDT.api.storage.model.OrdersDetail;
 import org.mapstruct.*;
 
@@ -20,16 +19,7 @@ public interface OrdersDetailMapper {
 
     @IterableMapping(elementTargetType = OrdersDetail.class, qualifiedByName = "adminCreateMapping")
     List<OrdersDetail> fromCreateOrdersDetailFormListToOrdersDetailList(List<CreateOrdersDetailForm> createOrdersDetailFormList);
-
-    @Mapping(source = "ordersDetailId", target = "id")
-    @Mapping(source = "ordersDetailAmount", target = "amount")
-    @BeanMapping(ignoreByDefault = true)
-    @Named("adminUpdateMapping")
-    void fromUpdateOrdersDetailFormToEntity(UpdateOrdersDetailForm updateOrdersDetailForm, @MappingTarget OrdersDetail ordersDetail);
-
-    @IterableMapping(elementTargetType = OrdersDetail.class, qualifiedByName = "adminUpdateMapping")
-    List<OrdersDetail> fromUpdateOrdersDetailFormListToOrdersDetailList(List<UpdateOrdersDetailForm> updateOrdersDetailFormList);
-
+    
 
     @Mapping(source = "id", target = "ordersDetailId")
     @Mapping(source = "price", target = "ordersDetailPrice")
