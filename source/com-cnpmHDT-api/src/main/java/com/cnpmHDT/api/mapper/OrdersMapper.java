@@ -11,23 +11,18 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrdersMapper {
-    @Mapping(source = "customerId", target = "customer.id")
     @Mapping(source = "ordersSaleOff", target = "saleOff")
     @Mapping(source = "ordersAddress", target = "address")
     @Mapping(source = "ordersReceiverName", target = "receiverName")
-    @Mapping(source = "ordersReceiverPhone", target = "receiverPhone")
     @Mapping(source = "paymentMethod", target = "paymentMethod")
     @BeanMapping(ignoreByDefault = true)
     @Named("adminCreateMapping")
     Orders fromCreateOrdersFormToEntity(CreateOrdersForm createOrdersForm);
 
     @Mapping(source = "ordersId", target = "id")
-    @Mapping(source = "customerId", target = "customer.id")
-    @Mapping(source = "ordersSaleOff", target = "saleOff")
     @Mapping(source = "ordersAddress", target = "address")
     @Mapping(source = "ordersReceiverName", target = "receiverName")
     @Mapping(source = "ordersReceiverPhone", target = "receiverPhone")
-    @Mapping(source = "paymentMethod", target = "paymentMethod")
     @BeanMapping(ignoreByDefault = true)
     @Named("adminUpdateMapping")
     void fromUpdateOrdersFormToEntity(UpdateOrdersForm updateOrdersForm, @MappingTarget Orders orders);

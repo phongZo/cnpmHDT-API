@@ -10,6 +10,7 @@ import com.cnpmHDT.api.exception.RequestException;
 import com.cnpmHDT.api.form.orders.CreateOrdersForm;
 import com.cnpmHDT.api.form.orders.UpdateOrdersForm;
 import com.cnpmHDT.api.form.ordersdetail.CreateOrdersDetailForm;
+import com.cnpmHDT.api.form.ordersdetail.DeleteOrdersDetailForm;
 import com.cnpmHDT.api.form.ordersdetail.UpdateOrdersDetailForm;
 import com.cnpmHDT.api.mapper.OrdersDetailMapper;
 import com.cnpmHDT.api.mapper.OrdersMapper;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Double.*;
@@ -109,83 +112,165 @@ public class OrdersController extends ABasicController{
     }
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
     public ApiMessageDto<String> create(@Valid @RequestBody CreateOrdersForm createOrdersForm, BindingResult bindingResult) {
-        if(!isAdmin()){
+        if(!isAdmin()) {
             throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to create.");
         }
-        Double totalMoney = 0d;
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-        Customer customer = customerRepository.findById(createOrdersForm.getCustomerId()).orElse(null);
-
-        if (customer == null){
-            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Not found customer.");
-        }
+        List<OrdersDetail> ordersDetailList = ordersDetailMapper
+                .fromCreateOrdersDetailFormListToOrdersDetailList(createOrdersForm.getCreateOrdersDetailFormList());
         Orders orders = ordersMapper.fromCreateOrdersFormToEntity(createOrdersForm);
+        setCustomerCreateForm(orders,createOrdersForm);
         orders.setCode(generateCode());
+        orders.setState(cnpmHDTConstant.ORDERS_STATE_CREATED);
+        Orders savedOrder = ordersRepository.save(orders);
+        /*-----------------------Xử lý orders detail------------------ */
+        amountPriceCal(orders,ordersDetailList,savedOrder);  //Tổng tiền hóa đơn
+        ordersDetailRepository.saveAll(ordersDetailList);
+        /*-----------------------Quay lại xử lý orders------------------ */
+
         ordersRepository.save(orders);
-
-        for(CreateOrdersDetailForm createOrdersDetailForm : createOrdersForm.getCreateOrdersDetailFormList()){
-            Product product = productRepository.findById(createOrdersDetailForm.getProductId()).orElse(null);
-            if (product == null || !product.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE))
-            {
-                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Not found product.");
-            }
-            OrdersDetail ordersDetail = ordersDetailMapper.fromCreateOrdersDetailFormToEntity(createOrdersDetailForm);
-
-            double saleOffProduct= (double) product.getSaleoff().intValue();
-            ordersDetail.setPrice(product.getPrice() * ((100-saleOffProduct)/100) * ordersDetail.getAmount());
-            totalMoney = totalMoney + ordersDetail.getPrice();
-
-            ordersDetail.setOrders(orders);
-            ordersDetailRepository.save(ordersDetail);
-        }
-        orders.setState(cnpmHDTConstant.ORDERS_STATE_PENDING);
-        orders.setVat(10);
-        double saleOffOrders= (double) orders.getSaleOff().intValue();
-        double vatOrders= (double) orders.getVat().intValue();
-        orders.setTotalMoney(totalMoney*((100-saleOffOrders)/100)*((100+vatOrders)/100));
-        ordersRepository.save(orders);
-
         apiMessageDto.setMessage("Create orders success");
         return apiMessageDto;
     }
 
+    private void setCustomerCreateForm(Orders orders, CreateOrdersForm createOrdersForm) {
+        Customer customerCheck = customerRepository.findCustomerByAccountPhone(createOrdersForm.getOrdersReceiverPhone());
+        if (customerCheck == null) {
+            Account savedAccount = new Account();
+            savedAccount.setPhone(createOrdersForm.getOrdersReceiverPhone());
+            savedAccount.setUsername(createOrdersForm.getOrdersReceiverPhone());
+            savedAccount.setFullName(createOrdersForm.getOrdersReceiverName());
+            savedAccount.setKind(cnpmHDTConstant.USER_KIND_CUSTOMER);
+
+            Customer savedCustomer = new Customer();
+            savedCustomer.setAccount(savedAccount);
+            savedCustomer.setAddress(createOrdersForm.getOrdersAddress());
+            savedCustomer = customerRepository.save(savedCustomer);
+            orders.setCustomer(savedCustomer);
+        }
+        else{
+            orders.setCustomer(customerCheck);
+        }
+    }
+
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
     public ApiMessageDto<String> update(@Valid @RequestBody UpdateOrdersForm updateOrdersForm, BindingResult bindingResult) {
         if(!isAdmin()){
             throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to update.");
         }
-
-        Double totalMoney = 0d;
-
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-
+        // Lúc này orders sẽ là orders đang trong database (orders cũ)
         Orders orders = ordersRepository.findById(updateOrdersForm.getOrdersId()).orElse(null);
-        if(orders == null) {
-            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Not found orders.");
+        if(orders == null){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Orders Not Found");
         }
-        for(UpdateOrdersDetailForm updateOrdersDetailForm : updateOrdersForm.getUpdateOrdersDetailFormList()){
-            OrdersDetail ordersDetail = ordersDetailRepository.findById(updateOrdersDetailForm.getOrdersDetailId()).orElse(null);
-            Product product=ordersDetail.getProduct();
-            // || !ordersDetail.getOrders().equals(orders)
-            if(ordersDetail == null) {
-                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Not found orders detail.");
-            }
-            ordersDetailMapper.fromUpdateOrdersDetailFormToEntity(updateOrdersDetailForm,ordersDetail);
-            double saleOffProduct= (double) product.getSaleoff().intValue();
-            ordersDetail.setPrice(product.getPrice() * ((100-saleOffProduct)/100) * ordersDetail.getAmount());
-            totalMoney = totalMoney + ordersDetail.getPrice();
-
-            ordersDetailRepository.save(ordersDetail);
+        if(!orders.getState().equals(cnpmHDTConstant.ORDERS_STATE_CREATED)){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Can not update info in this state");
         }
+        setCustomerUpdateForm(updateOrdersForm, orders);
+        checkSizeProducts(updateOrdersForm);
+        //Map update form vô orders --> orders lúc này là orders mới với thông tin mới
         ordersMapper.fromUpdateOrdersFormToEntity(updateOrdersForm,orders);
-        double saleOffOrders= (double) orders.getSaleOff().intValue();
-        double vatOrders= (double) orders.getVat().intValue();
-        orders.setTotalMoney(totalMoney*((100-saleOffOrders)/100)*((100+vatOrders)/100));
+        List<OrdersDetail> ordersDetailDeleteList = setDeleteList(updateOrdersForm);
+        List<OrdersDetail> ordersDetailUpdateList = ordersDetailMapper
+                .fromUpdateOrdersDetailFormListToOrdersDetailList(updateOrdersForm.getUpdateOrdersDetailFormList());
+        if(ordersDetailUpdateList != null && !ordersDetailDeleteList.isEmpty()){
+            checkSameProduct(ordersDetailUpdateList,ordersDetailDeleteList);
+        }
+        if(!ordersDetailDeleteList.isEmpty()){
+            ordersDetailRepository.deleteAll(ordersDetailDeleteList);
+        }
+        if(ordersDetailUpdateList != null){
+            checkProducts(orders.getId(),ordersDetailUpdateList);
+            amountPriceCal(orders,ordersDetailUpdateList,orders);
+            ordersDetailRepository.saveAll(ordersDetailUpdateList);
+        }
         ordersRepository.save(orders);
         apiMessageDto.setMessage("Update orders success");
         return apiMessageDto;
     }
+
+    private void checkProducts(Long ordersId ,List<OrdersDetail> ordersDetailList) {
+        int checkIndex = 0;
+        for (OrdersDetail ordersDetail : ordersDetailList){
+            OrdersDetail ordersDetailCheck = ordersDetailRepository.findByProductIdAndOrdersId(ordersDetail.getProduct().getId(),ordersId);
+            if(ordersDetailCheck == null){
+                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Product in index "+ checkIndex +"not have in orders");
+            }
+            ordersDetailCheck.setAmount(ordersDetail.getAmount());
+            ordersDetailList.set(checkIndex,ordersDetailCheck);
+            checkIndex++;
+        }
+    }
+
+    private void checkSameProduct(List<OrdersDetail> ordersDetailUpdateList, List<OrdersDetail> ordersDetailDeleteList) {
+        int checkIndex = 0;
+        for(OrdersDetail ordersDetail : ordersDetailDeleteList){
+            if (ordersDetailUpdateList.contains(ordersDetail)){
+                throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Product in index "+ checkIndex +"can not be same");
+            }
+            checkIndex ++;
+        }
+    }
+
+    private List<OrdersDetail> setDeleteList(UpdateOrdersForm updateOrdersForm) {
+        if(updateOrdersForm.getDeleteOrdersDetailFormList() == null){
+            return Collections.emptyList();
+        }
+        int checkIndex = 0;
+        List<OrdersDetail> ordersDetailDeleteList = new ArrayList<>();
+        for (DeleteOrdersDetailForm deleteOrdersDetailForm : updateOrdersForm.getDeleteOrdersDetailFormList()){
+            OrdersDetail ordersDetail = ordersDetailRepository.findById(deleteOrdersDetailForm.getOrderDetailId()).orElse(null);
+            if(ordersDetail == null){
+                throw new RequestException(ErrorCode.ORDERS_DETAIL_ERROR_NOT_FOUND, "Not found orders detail in index " + checkIndex);
+            }
+            ordersDetailDeleteList.add(ordersDetail);
+            checkIndex ++;
+        }
+        return ordersDetailDeleteList;
+    }
+
+    private void checkSizeProducts(UpdateOrdersForm updateOrdersForm) {
+        int sizeOfUpdate = 0;
+        int sizeOfDelete = 0;
+        if(updateOrdersForm.getUpdateOrdersDetailFormList() != null){
+            sizeOfUpdate  = updateOrdersForm.getUpdateOrdersDetailFormList().size();
+        }
+        if(updateOrdersForm.getDeleteOrdersDetailFormList() != null){
+            sizeOfDelete  = updateOrdersForm.getDeleteOrdersDetailFormList().size();
+        }
+        int sizeOfOrderDetailProduct = ordersDetailRepository.countByOrdersId(updateOrdersForm.getOrdersId());
+        if(sizeOfOrderDetailProduct != (sizeOfDelete + sizeOfUpdate)){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Size of product not equal old orders");
+        }
+    }
+
+
+    private void setCustomerUpdateForm(UpdateOrdersForm updateOrdersForm, Orders orders) {
+        Customer customerCheck = customerRepository.findCustomerByAccountPhone(updateOrdersForm.getOrdersReceiverPhone());
+        if (customerCheck == null) {
+            {
+                Account savedAccount = new Account();
+                savedAccount.setPhone(updateOrdersForm.getOrdersReceiverPhone());
+                savedAccount.setUsername(updateOrdersForm.getOrdersReceiverPhone());
+                savedAccount.setFullName(updateOrdersForm.getOrdersReceiverName());
+                savedAccount.setKind(cnpmHDTConstant.USER_KIND_CUSTOMER);
+
+                Customer savedCustomer = new Customer();
+                savedCustomer.setAccount(savedAccount);
+                savedCustomer.setAddress(updateOrdersForm.getOrdersAddress());
+                savedCustomer = customerRepository.save(savedCustomer);
+                orders.setCustomer(savedCustomer);
+            }
+        }
+        else{
+            orders.setCustomer(customerCheck);
+        }
+    }
+
 
     @GetMapping(value = "/client-list",produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListObj<OrdersDto>> clientList(OrdersCriteria ordersCriteria, Pageable pageable) {
@@ -284,6 +369,32 @@ public class OrdersController extends ABasicController{
         orders.setCustomer(customerCheck);
     }
 
+    @PutMapping(value = "/client-cancel-orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public ApiMessageDto<String> clientCancelOrders(@PathVariable("id") Long id) {
+        if (!isCustomer()) {
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to cancel orders.");
+        }
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        Orders orders = ordersRepository.findById(id).orElse(null);
+        if(orders == null){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Order Not Found");
+        }
+        checkState(orders);
+        Integer prevState = orders.getState();
+        orders.setState(cnpmHDTConstant.ORDERS_STATE_CANCELED);
+        orders.setPrevState(prevState);
+        ordersRepository.save(orders);
+        apiMessageDto.setMessage("Cancel order success");
+        return apiMessageDto;
+    }
+
+    private void checkState(Orders orders) {
+        Integer state = orders.getState();
+        if(state.equals(cnpmHDTConstant.ORDERS_STATE_DONE) || state.equals(cnpmHDTConstant.ORDERS_STATE_CANCELED)){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_BAD_REQUEST, "Can not cancel order in this state");
+        }
+    }
 
 
     @GetMapping(value = "/client-get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

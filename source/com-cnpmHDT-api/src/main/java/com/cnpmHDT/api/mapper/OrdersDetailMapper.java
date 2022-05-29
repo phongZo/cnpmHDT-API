@@ -27,6 +27,10 @@ public interface OrdersDetailMapper {
     @Named("adminUpdateMapping")
     void fromUpdateOrdersDetailFormToEntity(UpdateOrdersDetailForm updateOrdersDetailForm, @MappingTarget OrdersDetail ordersDetail);
 
+    @IterableMapping(elementTargetType = OrdersDetail.class, qualifiedByName = "adminUpdateMapping")
+    List<OrdersDetail> fromUpdateOrdersDetailFormListToOrdersDetailList(List<UpdateOrdersDetailForm> updateOrdersDetailFormList);
+
+
     @Mapping(source = "id", target = "ordersDetailId")
     @Mapping(source = "price", target = "ordersDetailPrice")
     @Mapping(source = "amount", target = "ordersDetailAmount")

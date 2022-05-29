@@ -10,4 +10,6 @@ import java.util.List;
 public interface OrdersDetailRepository extends JpaRepository<OrdersDetail, Long>, JpaSpecificationExecutor<OrdersDetail> {
     public List<OrdersDetail> findAllById(Long id);
     List<OrdersDetail> findAllByOrders(Orders orders);
+    int countByOrdersId(Long id);
+    OrdersDetail findByProductIdAndOrdersId(Long productId, Long ordersId);
 }
