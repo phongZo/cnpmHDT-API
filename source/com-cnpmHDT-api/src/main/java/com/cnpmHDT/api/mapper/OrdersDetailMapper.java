@@ -18,6 +18,9 @@ public interface OrdersDetailMapper {
     @Named("adminCreateMapping")
     OrdersDetail fromCreateOrdersDetailFormToEntity(CreateOrdersDetailForm createOrdersDetailForm);
 
+    @IterableMapping(elementTargetType = OrdersDetail.class, qualifiedByName = "adminCreateMapping")
+    List<OrdersDetail> fromCreateOrdersDetailFormListToOrdersDetailList(List<CreateOrdersDetailForm> createOrdersDetailFormList);
+
     @Mapping(source = "ordersDetailId", target = "id")
     @Mapping(source = "ordersDetailAmount", target = "amount")
     @BeanMapping(ignoreByDefault = true)

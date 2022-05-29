@@ -26,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import java.util.List;
@@ -219,6 +220,68 @@ public class OrdersController extends ABasicController{
         responseListObjApiMessageDto.setMessage("Get list ordersdetail type success");
 
         return responseListObjApiMessageDto;
+    }
+
+    @PostMapping(value = "/client-create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public ApiMessageDto<String> clientCreate(@Valid @RequestBody CreateOrdersForm createOrdersForm, BindingResult bindingResult) {
+        if(!isCustomer()){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to create.");
+        }
+        ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
+        List<OrdersDetail> ordersDetailList = ordersDetailMapper
+                .fromCreateOrdersDetailFormListToOrdersDetailList(createOrdersForm.getCreateOrdersDetailFormList());
+        Orders orders = ordersMapper.fromCreateOrdersFormToEntity(createOrdersForm);
+        setCustomerClient(orders);
+        orders.setCode(generateCode());
+        orders.setState(cnpmHDTConstant.ORDERS_STATE_CREATED);
+        Orders savedOrder = ordersRepository.save(orders);
+        /*-----------------------Xử lý orders detail------------------ */
+        amountPriceCal(orders,ordersDetailList,savedOrder);  //Tổng tiền hóa đơn
+        ordersDetailRepository.saveAll(ordersDetailList);
+        /*-----------------------Quay lại xử lý orders------------------ */
+
+        ordersRepository.save(orders);
+        apiMessageDto.setMessage("Create orders success");
+        return apiMessageDto;
+    }
+
+    private void amountPriceCal(Orders orders,List<OrdersDetail> ordersDetailList, Orders savedOrder) {
+        int checkIndex = 0;
+        Double amountPrice = 0.0;
+        for (OrdersDetail ordersDetail : ordersDetailList){
+            Product productCheck = productRepository.findById(ordersDetail.getProduct().getId()).orElse(null);
+            if (productCheck == null){
+                throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "product in index "+checkIndex+"is not existed");
+            }
+            Double productPrice = productCheck.getPrice();
+            Double priceProductAfterSale = productPrice - (productPrice * productCheck.getSaleoff() / 100);
+            ordersDetail.setPrice(priceProductAfterSale);
+            amountPrice = amountPrice + priceProductAfterSale * (ordersDetail.getAmount()); // Tổng tiền hóa đơn
+            ordersDetail.setOrders(savedOrder);
+            checkIndex++;
+        }
+        Double totalMoney = totalMoneyHaveToPay(amountPrice,orders);
+        orders.setTotalMoney(totalMoney);
+        orders.setVat(cnpmHDTConstant.ORDER_VAT);
+    }
+
+    private Double totalMoneyHaveToPay(Double amountPrice,Orders orders) {
+        double saleOff = (double)orders.getSaleOff() / 100;             // Tính saleOff (%)
+        Double amountAfterSaleOff =  amountPrice - amountPrice * saleOff;                  // Tổng tiền sau khi trừ saleOff
+        double VAT = (double)cnpmHDTConstant.ORDER_VAT / 100;             // Tính VAT (%)
+        amountPrice = amountAfterSaleOff + amountAfterSaleOff * VAT ;              // Tiền sau cùng bằng tiền sau khi saleOff cộng với VAT (10% tổng tiền)
+        return Math.round(amountPrice * 100.0) / 100.0;          // Làm tròn đến thập phân thứ 2
+    }
+
+
+    private void setCustomerClient(Orders orders) {
+        Long id = getCurrentUserId();
+        Customer customerCheck = customerRepository.findCustomerByAccountId(id);
+        if (customerCheck == null || !customerCheck.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
+            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Not found current customer");
+        }
+        orders.setCustomer(customerCheck);
     }
 
 
