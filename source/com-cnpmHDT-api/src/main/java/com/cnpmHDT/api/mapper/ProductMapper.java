@@ -46,4 +46,31 @@ public interface ProductMapper {
 
     @IterableMapping(elementTargetType = ProductDto.class, qualifiedByName = "adminGetMapping")
     List<ProductDto> fromEntityListToProductDtoList(List<Product> products);
+
+
+    @Mapping(source = "id", target = "productId")
+    @Mapping(source = "name", target = "productName")
+    @Mapping(source = "description", target = "productDescription")
+    @Mapping(source = "shortDescription", target = "productShortDescription")
+    @Mapping(source = "saleoff", target = "productSaleOff")
+    @Mapping(source = "image", target = "productImage")
+    @Mapping(source = "category.id", target = "productCategoryId")
+    @Mapping(source = "price", target = "productPrice")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientDetailProductGetMapping")
+    ProductDto fromEntityToClientDtoDetailProduct(Product product);
+
+
+    @Mapping(source = "id", target = "productId")
+    @Mapping(source = "name", target = "productName")
+    @Mapping(source = "saleoff", target = "productSaleOff")
+    @Mapping(source = "image", target = "productImage")
+    @Mapping(source = "category.id", target = "productCategoryId")
+    @Mapping(source = "price", target = "productPrice")
+    @BeanMapping(ignoreByDefault = true)
+    @Named("clientGetMapping")
+    ProductDto fromEntityToClientDto(Product product);
+
+    @IterableMapping(elementTargetType = ProductDto.class, qualifiedByName = "clientGetMapping")
+    List<ProductDto> fromEntityListToProductClientDtoList(List<Product> products);
 }

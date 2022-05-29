@@ -15,10 +15,7 @@ import com.cnpmHDT.api.mapper.OrdersDetailMapper;
 import com.cnpmHDT.api.mapper.OrdersMapper;
 import com.cnpmHDT.api.service.cnpmHDTApiService;
 import com.cnpmHDT.api.storage.criteria.OrdersCriteria;
-import com.cnpmHDT.api.storage.model.Customer;
-import com.cnpmHDT.api.storage.model.Orders;
-import com.cnpmHDT.api.storage.model.OrdersDetail;
-import com.cnpmHDT.api.storage.model.Product;
+import com.cnpmHDT.api.storage.model.*;
 import com.cnpmHDT.api.storage.repository.*;
 import com.cnpmHDT.api.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.util.List;
 
 import static java.lang.Double.*;
 
@@ -50,6 +49,9 @@ public class OrdersController extends ABasicController{
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     @Autowired
     OrdersMapper ordersMapper;
@@ -182,5 +184,55 @@ public class OrdersController extends ABasicController{
         ordersRepository.save(orders);
         apiMessageDto.setMessage("Update orders success");
         return apiMessageDto;
+    }
+
+    @GetMapping(value = "/client-list",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListObj<OrdersDto>> clientList(OrdersCriteria ordersCriteria, Pageable pageable){
+        if(!isCustomer()){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed get.");
+        }
+        ApiMessageDto<ResponseListObj<OrdersDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
+        Customer customer = getCurrentCustomer();
+        ordersCriteria.setCustomerId(customer.getId());
+        Page<Orders> listOrders = ordersRepository.findAll(ordersCriteria.getSpecification(), pageable);
+        ResponseListObj<OrdersDto> responseListObj = new ResponseListObj<>();
+        responseListObj.setData(ordersMapper.fromEntityListToOrdersDtoList(listOrders.getContent()));
+        responseListObj.setPage(pageable.getPageNumber());
+        responseListObj.setTotalPage(listOrders.getTotalPages());
+        responseListObj.setTotalElements(listOrders.getTotalElements());
+
+        responseListObjApiMessageDto.setData(responseListObj);
+        responseListObjApiMessageDto.setMessage("Get list success");
+        return responseListObjApiMessageDto;
+    }
+
+
+    @GetMapping(value = "/client-get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<OrdersDto> clientGet(@PathVariable("id") Long id) {
+        if(!isCustomer()){
+            throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed get.");
+        }
+        ApiMessageDto<OrdersDto> result = new ApiMessageDto<>();
+        Customer customer = getCurrentCustomer();
+        Orders orders = ordersRepository.findOrdersByIdAndCustomerId(id,customer.getId());
+        if(orders == null || !orders.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
+            throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Not found orders.");
+        }
+        List<OrdersDetailDto> ordersDetailDtoList = ordersDetailMapper.fromEntityListToOrdersDetailClientDtoList(ordersDetailRepository.findAllById(id));
+        OrdersDto ordersDto = ordersMapper.fromEntityToClientOrdersDto(orders);
+        ordersDto.setOrdersDetailDtoList(ordersDetailDtoList);
+        result.setData(ordersDto);
+        result.setMessage("Get orders success");
+        return result;
+    }
+
+
+    private Customer getCurrentCustomer() {
+        Long userId = getCurrentUserId();
+        Customer customer = customerRepository.findCustomerByAccountId(userId);
+        if(customer == null || !customer.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)){
+            throw new RequestException(ErrorCode.CUSTOMER_ERROR_NOT_FOUND, "Not found current customer.");
+        }
+        return customer;
     }
 }

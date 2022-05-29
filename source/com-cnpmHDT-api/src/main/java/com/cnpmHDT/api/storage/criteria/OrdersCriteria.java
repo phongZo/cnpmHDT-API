@@ -7,17 +7,14 @@ import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class OrdersCriteria {
     private Long id;
-    private String customer;
+    private Long customerId;
     private String code;
     private String receiverName; // Ten nguoi nhan
     private String receiverPhone; // Sdt nguoi nhan
@@ -32,8 +29,9 @@ public class OrdersCriteria {
                 if(getId() != null) {
                     predicates.add(cb.equal(root.get("id"), getId()));
                 }
-                if(!StringUtils.isEmpty(getCustomer())){
-                    predicates.add(cb.like(cb.lower(root.get("customer")), "%"+ getCustomer().toLowerCase()+"%"));
+                if(getCustomerId() != null) {
+                    Join<Customer, Orders> joinCustomer = root.join("customer", JoinType.INNER);
+                    predicates.add(cb.equal(joinCustomer.get("id"), getCustomerId()));
                 }
                 if(!StringUtils.isEmpty(getCode())){
                     predicates.add(cb.like(cb.lower(root.get("code")), "%"+getCode().toLowerCase()+"%"));

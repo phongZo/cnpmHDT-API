@@ -86,6 +86,35 @@ public class ProductController extends ABasicController {
         return result;
     }
 
+    @GetMapping(value = "/client-list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ResponseListObj<ProductDto>> clientList(ProductCriteria productCriteria, Pageable pageable) {
+        ApiMessageDto<ResponseListObj<ProductDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
+
+        Page<Product> productList = productRepository.findAll(productCriteria.getSpecification(), pageable);
+        ResponseListObj<ProductDto> responseListObj = new ResponseListObj<>();
+        responseListObj.setData(productMapper.fromEntityListToProductClientDtoList(productList.getContent()));
+        responseListObj.setPage(pageable.getPageNumber());
+        responseListObj.setTotalPage(productList.getTotalPages());
+        responseListObj.setTotalElements(productList.getTotalElements());
+
+        responseListObjApiMessageDto.setData(responseListObj);
+        responseListObjApiMessageDto.setMessage("Get list success");
+        return responseListObjApiMessageDto;
+    }
+
+    @GetMapping(value = "/client-get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiMessageDto<ProductDto> clientGet(@PathVariable("id") Long id) {
+        ApiMessageDto<ProductDto> result = new ApiMessageDto<>();
+
+        Product product = productRepository.findById(id).orElse(null);
+        if(product == null) {
+            throw new RequestException(ErrorCode.PRODUCT_ERROR_NOT_FOUND, "Not found product.");
+        }
+        result.setData(productMapper.fromEntityToClientDtoDetailProduct(product));
+        result.setMessage("Get product success");
+        return result;
+    }
+
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<String> create(@Valid @RequestBody CreateProductForm createProductForm, BindingResult bindingResult) {
         if(!isAdmin()){
