@@ -368,7 +368,7 @@ public class OrdersController extends ABasicController{
         if(orders == null || !orders.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
             throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Not found orders.");
         }
-        List<OrdersDetailDto> ordersDetailDtoList = ordersDetailMapper.fromEntityListToOrdersDetailClientDtoList(ordersDetailRepository.findAllById(id));
+        List<OrdersDetailDto> ordersDetailDtoList = ordersDetailMapper.fromEntityListToOrdersDetailClientDtoList(ordersDetailRepository.findAllByOrders(orders));
         OrdersDto ordersDto = ordersMapper.fromEntityToClientOrdersDto(orders);
         ordersDto.setOrdersDetailDtoList(ordersDetailDtoList);
         result.setData(ordersDto);
