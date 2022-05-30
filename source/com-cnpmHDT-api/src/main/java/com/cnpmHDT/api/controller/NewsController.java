@@ -46,9 +46,6 @@ public class NewsController extends ABasicController{
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<ResponseListObj<NewsDto>> list(NewsCriteria newsCriteria, Pageable pageable) {
-        if(!isAdmin()){
-            throw new RequestException(ErrorCode.NEWS_ERROR_UNAUTHORIZED);
-        }
         ApiMessageDto<ResponseListObj<NewsDto>> responseListObjApiMessageDto = new ApiMessageDto<>();
 
         Page<News> list = newsRepository.findAll(newsCriteria.getSpecification(), pageable);
@@ -65,21 +62,10 @@ public class NewsController extends ABasicController{
 
     @GetMapping(value = "/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiMessageDto<NewsDto> get(@PathVariable("id") Long id){
-        Account currentUser = accountRepository.findById(getCurrentUserId()) .orElse(null);
-        if(currentUser == null
-                || !currentUser.getKind().equals(cnpmHDTConstant.USER_KIND_ADMIN)
-                && !currentUser.getKind().equals(cnpmHDTConstant.USER_KIND_EMPLOYEE)
-                && !currentUser.getKind().equals(cnpmHDTConstant.USER_KIND_COLLABORATOR)) {
-            throw new RequestException(ErrorCode.NEWS_ERROR_UNAUTHORIZED);
-        }
 
         ApiMessageDto<NewsDto> result = new ApiMessageDto<>();
         News news = newsRepository.findById(id).orElse(null);
         if(news == null){
-            throw new RequestException(ErrorCode.NEWS_ERROR_NOT_FOUND);
-        }
-        if(!currentUser.getKind().equals(cnpmHDTConstant.USER_KIND_ADMIN)
-                && !news.getStatus().equals(cnpmHDTConstant.STATUS_ACTIVE)) {
             throw new RequestException(ErrorCode.NEWS_ERROR_NOT_FOUND);
         }
 
