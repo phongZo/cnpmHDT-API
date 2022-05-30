@@ -7,6 +7,7 @@ import com.cnpmHDT.api.dto.ResponseListObj;
 import com.cnpmHDT.api.dto.orders.OrdersDto;
 import com.cnpmHDT.api.dto.ordersdetail.OrdersDetailDto;
 import com.cnpmHDT.api.exception.RequestException;
+import com.cnpmHDT.api.form.orders.ClientCancelOrdersForm;
 import com.cnpmHDT.api.form.orders.CreateOrdersForm;
 import com.cnpmHDT.api.form.orders.UpdateOrdersForm;
 import com.cnpmHDT.api.form.orders.UpdateStateOrdersForm;
@@ -328,14 +329,14 @@ public class OrdersController extends ABasicController{
         orders.setCustomer(customerCheck);
     }
 
-    @PutMapping(value = "/client-cancel-orders/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/client-cancel-orders", produces = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ApiMessageDto<String> clientCancelOrders(@PathVariable("id") Long id) {
+    public ApiMessageDto<String> clientCancelOrders(@Valid @RequestBody ClientCancelOrdersForm clientCancelOrdersForm, BindingResult bindingResult) {
         if (!isCustomer()) {
             throw new RequestException(ErrorCode.ORDERS_ERROR_UNAUTHORIZED, "Not allowed to cancel orders.");
         }
         ApiMessageDto<String> apiMessageDto = new ApiMessageDto<>();
-        Orders orders = ordersRepository.findById(id).orElse(null);
+        Orders orders = ordersRepository.findById(clientCancelOrdersForm.getOrdersId()).orElse(null);
         if(orders == null){
             throw new RequestException(ErrorCode.ORDERS_ERROR_NOT_FOUND, "Order Not Found");
         }
