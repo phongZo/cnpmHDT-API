@@ -14,6 +14,7 @@ public interface OrdersMapper {
     @Mapping(source = "ordersSaleOff", target = "saleOff")
     @Mapping(source = "ordersAddress", target = "address")
     @Mapping(source = "ordersReceiverName", target = "receiverName")
+    @Mapping(source = "ordersReceiverPhone", target = "receiverPhone")
     @Mapping(source = "paymentMethod", target = "paymentMethod")
     @BeanMapping(ignoreByDefault = true)
     @Named("adminCreateMapping")
