@@ -39,6 +39,7 @@ public interface OrdersMapper {
     @Mapping(source = "code", target = "ordersCode")
     @Mapping(source = "paymentMethod", target = "ordersPaymentMethod")
     @Mapping(source = "saleOff", target = "ordersSaleOff")
+    @Mapping(source = "createdDate", target = "createdDate")
     @BeanMapping(ignoreByDefault = true)
     @Named("adminGetMapping")
     OrdersDto fromEntityToAdminDto(Orders orders);
